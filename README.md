@@ -4,6 +4,7 @@ An application where one can search and add recipes, create a meal calendar, and
 - Tanya Trampp
 - Brandon Adolf
 - Manuel Zamalloa
+- MF Dube
   
 ### Favorite Quotes
 --Tanya's choice--
