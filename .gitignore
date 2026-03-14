@@ -480,3 +480,8 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+**/obj/
+**/bin/
+**/Areas/Identity/**/*.cshtml
+**/Areas/Identity/**/*.cshtml.cs
+src/MealSync.Web/wwwroot/lib/**

@@ -1,0 +1,57 @@
+@page "/recipes/delete/{id:int}"
+@using MealSync.Core.Entities
+@using MealSync.Core.Interfaces
+@inject IRecipeService RecipeService
+@inject NavigationManager Navigation
+
+<PageTitle>Delete Recipe</PageTitle>
+
+<h1>Delete</h1>
+
+<h3>Are you sure you want to delete this recipe?</h3>
+
+@if (recipe == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div>
+        <h4>@recipe.Title</h4>
+        <hr />
+        <dl class="row">
+            <dt class="col-sm-2">Title</dt>
+            <dd class="col-sm-10">@recipe.Title</dd>
+
+            <dt class="col-sm-2">Prep Time</dt>
+            <dd class="col-sm-10">@recipe.PrepTime mins</dd>
+
+            <dt class="col-sm-2">Cook Time</dt>
+            <dd class="col-sm-10">@recipe.CookTime mins</dd>
+
+            <dt class="col-sm-2">Servings</dt>
+            <dd class="col-sm-10">@recipe.Servings</dd>
+        </dl>
+
+        <button class="btn btn-danger" @onclick="ConfirmDelete">Delete</button> |
+        <a class="btn btn-secondary" href="/recipes">Back to List</a>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public int id { get; set; }
+
+    private Recipe? recipe;
+
+    protected override async Task OnInitializedAsync()
+    {
+        recipe = await RecipeService.GetRecipeByIdAsync(id);
+    }
+
+    private async Task ConfirmDelete()
+    {
+        await RecipeService.DeleteRecipeAsync(id);
+        Navigation.NavigateTo("/recipes");
+    }
+}
