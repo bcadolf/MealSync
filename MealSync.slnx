@@ -1,0 +1,7 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/MealSync.Core/MealSync.Core.csproj" />
+    <Project Path="src/MealSync.Infrastructure/MealSync.Infrastructure.csproj" />
+    <Project Path="src/MealSync.Web/MealSync.Web.csproj" />
+  </Folder>
+</Solution>
