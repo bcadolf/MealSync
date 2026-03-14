@@ -2,6 +2,9 @@
 @using MealSync.Core.Entities
 @using MealSync.Core.Interfaces
 @inject IGroceryListService GroceryListService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@using System.Security.Claims
+@attribute [Authorize]
 
 <PageTitle>Grocery List</PageTitle>
 
@@ -37,19 +40,28 @@ else if (groceryList != null)
 
 @code {
     private GroceryList? groceryList;
+    private string? userId;
 
     protected override async Task OnInitializedAsync()
     {
-        groceryList = await GroceryListService.GetLatestGroceryListAsync();
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        userId = authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        if (!string.IsNullOrEmpty(userId))
+        {
+            groceryList = await GroceryListService.GetLatestGroceryListAsync(userId);
+        }
     }
 
     private async Task GenerateList()
     {
+        if (string.IsNullOrEmpty(userId)) return;
+
         // Simple implementation: generate for current week starting from today
         var start = DateTime.Today;
         var end = start.AddDays(7);
 
-        groceryList = await GroceryListService.GenerateGroceryListAsync(start, end);
+        groceryList = await GroceryListService.GenerateGroceryListAsync(start, end, userId);
     }
 
     private async Task ToggleItem(GroceryListItem item)

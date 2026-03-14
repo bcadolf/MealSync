@@ -2,6 +2,9 @@
 @using MealSync.Core.Entities
 @using MealSync.Core.Interfaces
 @inject IRecipeService RecipeService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@using System.Security.Claims
+@attribute [Authorize]
 
 <PageTitle>Recipes</PageTitle>
 
@@ -54,6 +57,9 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        recipes = await RecipeService.GetAllRecipesAsync();
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var userId = authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        recipes = await RecipeService.GetAllRecipesAsync(userId);
     }
 }

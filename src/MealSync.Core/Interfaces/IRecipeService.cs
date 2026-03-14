@@ -6,7 +6,7 @@ namespace MealSync.Core.Interfaces
 {
     public interface IRecipeService
     {
-        Task<List<Recipe>> GetAllRecipesAsync();
+        Task<List<Recipe>> GetAllRecipesAsync(string? userId = null);
         Task<Recipe?> GetRecipeByIdAsync(int id);
         Task<Recipe> CreateRecipeAsync(Recipe recipe);
         Task UpdateRecipeAsync(Recipe recipe);

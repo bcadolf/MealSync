@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Linq;
 using MealSync.Core.Entities;
 using MealSync.Core.Interfaces;
 using MealSync.Infrastructure.Data;
@@ -16,12 +17,19 @@ namespace MealSync.Infrastructure.Services
             _context = context;
         }
 
-        public async Task<List<Recipe>> GetAllRecipesAsync()
+        public async Task<List<Recipe>> GetAllRecipesAsync(string? userId = null)
         {
-            return await _context.Recipes
+            var query = _context.Recipes
                 .Include(r => r.RecipeIngredients)
                 .ThenInclude(ri => ri.Ingredient)
-                .ToListAsync();
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(userId))
+            {
+                query = query.Where(r => r.UserId == userId || r.IsPublic);
+            }
+
+            return await query.ToListAsync();
         }
 
         public async Task<Recipe?> GetRecipeByIdAsync(int id)
@@ -41,12 +49,36 @@ namespace MealSync.Infrastructure.Services
 
         public async Task UpdateRecipeAsync(Recipe recipe)
         {
-            _context.Entry(recipe).State = EntityState.Modified;
+            var existingRecipe = await _context.Recipes
+                .Include(r => r.RecipeIngredients)
+                .ThenInclude(ri => ri.Ingredient)
+                .FirstOrDefaultAsync(r => r.RecipeId == recipe.RecipeId);
 
-            // Handle ingredients updates (basic implementation for now)
-            // A more robust implementation would diff the lists.
+            if (existingRecipe != null)
+            {
+                // Update scalar properties
+                _context.Entry(existingRecipe).CurrentValues.SetValues(recipe);
 
-            await _context.SaveChangesAsync();
+                // Update ingredients by replacing them
+                _context.RecipeIngredients.RemoveRange(existingRecipe.RecipeIngredients);
+
+                if (recipe.RecipeIngredients != null)
+                {
+                    foreach (var ri in recipe.RecipeIngredients)
+                    {
+                        var newRi = new RecipeIngredient
+                        {
+                            RecipeId = recipe.RecipeId,
+                            Quantity = ri.Quantity,
+                            Unit = ri.Unit,
+                            Ingredient = new Ingredient { Name = ri.Ingredient?.Name ?? string.Empty }
+                        };
+                        _context.RecipeIngredients.Add(newRi);
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+            }
         }
 
         public async Task DeleteRecipeAsync(int id)

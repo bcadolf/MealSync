@@ -33,8 +33,9 @@ namespace MealSync.Infrastructure.Services
 
             var mealPlans = await mealPlansQuery.ToListAsync();
 
-            // Aggregate duplicate ingredients based on matching IngredientId and Unit
-            var aggregatedItems = new Dictionary<(int IngredientId, string Unit), decimal>();
+            // Aggregate duplicate ingredients based on matching Name and Unit
+            // We group by Name (case-insensitive) instead of ID, as creating a recipe currently creates new ingredients
+            var aggregatedItems = new Dictionary<(string Name, string Unit), (int IngredientId, decimal Quantity)>();
 
             foreach (var plan in mealPlans)
             {
@@ -43,14 +44,20 @@ namespace MealSync.Infrastructure.Services
                 // Scale ingredients if servings feature is implemented, for now just 1:1
                 foreach (var ri in plan.Recipe.RecipeIngredients)
                 {
-                    var key = (ri.IngredientId, ri.Unit.ToLowerInvariant());
+                    if (ri.Ingredient == null || string.IsNullOrWhiteSpace(ri.Ingredient.Name)) continue;
+
+                    var nameKey = ri.Ingredient.Name.Trim().ToLowerInvariant();
+                    var unitKey = (ri.Unit ?? string.Empty).Trim().ToLowerInvariant();
+                    var key = (nameKey, unitKey);
+
                     if (aggregatedItems.ContainsKey(key))
                     {
-                        aggregatedItems[key] += ri.Quantity;
+                        var existing = aggregatedItems[key];
+                        aggregatedItems[key] = (existing.IngredientId, existing.Quantity + ri.Quantity);
                     }
                     else
                     {
-                        aggregatedItems[key] = ri.Quantity;
+                        aggregatedItems[key] = (ri.IngredientId, ri.Quantity);
                     }
                 }
             }
@@ -66,8 +73,8 @@ namespace MealSync.Infrastructure.Services
             {
                 groceryList.Items.Add(new GroceryListItem
                 {
-                    IngredientId = kvp.Key.IngredientId,
-                    Quantity = kvp.Value,
+                    IngredientId = kvp.Value.IngredientId,
+                    Quantity = kvp.Value.Quantity,
                     Unit = kvp.Key.Unit,
                     IsChecked = false
                 });

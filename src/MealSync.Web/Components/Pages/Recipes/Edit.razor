@@ -3,6 +3,9 @@
 @using MealSync.Core.Interfaces
 @inject IRecipeService RecipeService
 @inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@using System.Security.Claims
+@attribute [Authorize]
 
 <PageTitle>Edit Recipe</PageTitle>
 
@@ -57,7 +60,21 @@ else
                     </label>
                 </div>
 
-                <div class="form-group">
+                <h4>Ingredients</h4>
+                <div class="mb-3">
+                    @foreach (var (ri, index) in recipeIngredients.Select((ri, i) => (ri, i)))
+                    {
+                        <div class="d-flex mb-2 align-items-center">
+                            <InputText class="form-control me-2" placeholder="Ingredient Name" @bind-Value="ri.Ingredient!.Name" />
+                            <InputNumber class="form-control me-2" style="width: 100px;" placeholder="Qty" @bind-Value="ri.Quantity" />
+                            <InputText class="form-control me-2" style="width: 100px;" placeholder="Unit" @bind-Value="ri.Unit" />
+                            <button type="button" class="btn btn-danger btn-sm" @onclick="() => RemoveIngredient(index)">X</button>
+                        </div>
+                    }
+                    <button type="button" class="btn btn-secondary btn-sm" @onclick="AddIngredient">Add Ingredient</button>
+                </div>
+
+                <div class="form-group mt-4">
                     <button type="submit" class="btn btn-primary">Save</button>
                 </div>
             </EditForm>
@@ -74,16 +91,66 @@ else
     public int id { get; set; }
 
     private Recipe? recipe;
+    private List<RecipeIngredient> recipeIngredients = new List<RecipeIngredient>();
+    private string? userId;
 
     protected override async Task OnInitializedAsync()
     {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity is not null && user.Identity.IsAuthenticated)
+        {
+            userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        }
+
+        if (string.IsNullOrEmpty(userId))
+        {
+            Navigation.NavigateTo("/Account/Login", forceLoad: true);
+            return;
+        }
+
         recipe = await RecipeService.GetRecipeByIdAsync(id);
+
+        if (recipe == null || recipe.UserId != userId)
+        {
+            Navigation.NavigateTo("/recipes");
+            return;
+        }
+
+        if (recipe.RecipeIngredients != null)
+        {
+            recipeIngredients = recipe.RecipeIngredients.ToList();
+        }
+
+        if (!recipeIngredients.Any())
+        {
+            AddIngredient();
+        }
+    }
+
+    private void AddIngredient()
+    {
+        recipeIngredients.Add(new RecipeIngredient { Ingredient = new Ingredient() });
+    }
+
+    private void RemoveIngredient(int index)
+    {
+        if (index >= 0 && index < recipeIngredients.Count)
+        {
+            recipeIngredients.RemoveAt(index);
+        }
     }
 
     private async Task HandleValidSubmit()
     {
         if (recipe != null)
         {
+            // Filter out empty ingredients
+            recipe.RecipeIngredients = recipeIngredients
+                .Where(ri => !string.IsNullOrWhiteSpace(ri.Ingredient?.Name))
+                .ToList();
+
             await RecipeService.UpdateRecipeAsync(recipe);
             Navigation.NavigateTo("/recipes");
         }

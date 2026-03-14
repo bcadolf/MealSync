@@ -205,11 +205,8 @@ PublishScripts/
 # NuGet Symbol Packages
 *.snupkg
 # The packages folder can be ignored because of Package Restore
-**/[Pp]ackages/*
 # except build/, which is used as an MSBuild target.
-!**/[Pp]ackages/build/
 # Uncomment if necessary however generally it will be regenerated when needed
-#!**/[Pp]ackages/repositories.config
 # NuGet v3's project.json files produces more ignorable files
 *.nuget.props
 *.nuget.targets
@@ -314,11 +311,6 @@ node_modules/
 *.aps
 
 # Visual Studio LightSwitch build output
-**/*.HTMLClient/GeneratedArtifacts
-**/*.DesktopClient/GeneratedArtifacts
-**/*.DesktopClient/ModelManifest.xml
-**/*.Server/GeneratedArtifacts
-**/*.Server/ModelManifest.xml
 _Pvt_Extensions
 
 # Paket dependency manager
@@ -480,8 +472,13 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+src/MealSync.Web/wwwroot/lib/**
+*.db
+*.db-shm
+*.db-wal
 **/obj/
 **/bin/
-**/Areas/Identity/**/*.cshtml
-**/Areas/Identity/**/*.cshtml.cs
 src/MealSync.Web/wwwroot/lib/**
+*.db
+*.db-shm
+*.db-wal
