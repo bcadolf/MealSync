@@ -1,0 +1,144 @@
+@page "/calendar"
+@using MealSync.Core.Entities
+@using MealSync.Core.Interfaces
+@inject IMealPlanService MealPlanService
+@inject IRecipeService RecipeService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@using System.Security.Claims
+@attribute [Authorize]
+
+<PageTitle>Meal Planner</PageTitle>
+
+<h1>Meal Planner Calendar</h1>
+
+<div class="row mb-3">
+    <div class="col-md-4">
+        <button class="btn btn-secondary" @onclick="PreviousWeek">Previous Week</button>
+        <button class="btn btn-secondary" @onclick="NextWeek">Next Week</button>
+    </div>
+    <div class="col-md-8 text-end">
+        <h4>Week of @currentWeekStart.ToShortDateString()</h4>
+    </div>
+</div>
+
+<table class="table table-bordered text-center">
+    <thead>
+        <tr>
+            <th>Meal / Day</th>
+            @for (int i = 0; i < 7; i++)
+            {
+                var day = currentWeekStart.AddDays(i);
+                <th>
+                    <div>@day.ToString("dddd")</div>
+                    <small class="text-muted">@day.ToShortDateString()</small>
+                </th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var mealType in mealTypes)
+        {
+            <tr>
+                <td class="align-middle fw-bold">@mealType</td>
+                @for (int i = 0; i < 7; i++)
+                {
+                    var day = currentWeekStart.AddDays(i);
+                    var dayMeals = mealPlans.Where(mp => mp.Date.Date == day.Date && mp.MealType == mealType).ToList();
+                    <td>
+                        <div style="min-height: 80px;" class="border rounded p-2 mb-2 bg-light">
+                            @if (dayMeals.Any())
+                            {
+                                @foreach (var plan in dayMeals)
+                                {
+                                    <div class="mb-1 p-1 bg-white border d-flex justify-content-between align-items-center">
+                                        <span class="text-truncate" style="max-width: 120px;" title="@plan.Recipe?.Title">@plan.Recipe?.Title</span>
+                                        <button class="btn btn-sm text-danger border-0 p-0" @onclick="() => RemoveMeal(plan.MealPlanId)">&times;</button>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <small class="text-muted">No meal</small>
+                            }
+                        </div>
+                        <div class="d-flex mt-1">
+                            <select class="form-select form-select-sm me-1" @onchange="@(e => selectedRecipeIds[$"{day.Date:yyyy-MM-dd}_{mealType}"] = int.TryParse(e.Value?.ToString(), out var id) ? id : 0)">
+                                <option value="0">Select...</option>
+                                @foreach (var r in availableRecipes)
+                                {
+                                    <option value="@r.RecipeId">@r.Title</option>
+                                }
+                            </select>
+                            <button class="btn btn-sm btn-outline-primary" @onclick='() => AddMeal(day, mealType, selectedRecipeIds.GetValueOrDefault($"{day.Date:yyyy-MM-dd}_{mealType}", 0))'>Add</button>
+                        </div>
+                    </td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    private DateTime currentWeekStart;
+    private readonly string[] mealTypes = new[] { "Breakfast", "Lunch", "Dinner", "Snack" };
+
+    private List<MealPlan> mealPlans = new();
+    private List<Recipe> availableRecipes = new();
+    private Dictionary<string, int> selectedRecipeIds = new();
+    private string? userId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        userId = authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        // Set to the start of the current week (Sunday)
+        var today = DateTime.Today;
+        int diff = (7 + (today.DayOfWeek - DayOfWeek.Sunday)) % 7;
+        currentWeekStart = today.AddDays(-1 * diff);
+
+        availableRecipes = await RecipeService.GetAllRecipesAsync(userId);
+        await LoadMealPlansAsync();
+    }
+
+    private async Task LoadMealPlansAsync()
+    {
+        mealPlans = await MealPlanService.GetMealPlansAsync(currentWeekStart, currentWeekStart.AddDays(6), userId);
+    }
+
+    private async Task PreviousWeek()
+    {
+        currentWeekStart = currentWeekStart.AddDays(-7);
+        await LoadMealPlansAsync();
+    }
+
+    private async Task NextWeek()
+    {
+        currentWeekStart = currentWeekStart.AddDays(7);
+        await LoadMealPlansAsync();
+    }
+
+    private async Task AddMeal(DateTime date, string mealType, int recipeId)
+    {
+        if (recipeId > 0 && !string.IsNullOrEmpty(userId))
+        {
+            var plan = new MealPlan
+            {
+                Date = date,
+                MealType = mealType,
+                RecipeId = recipeId,
+                UserId = userId
+            };
+
+            await MealPlanService.AddRecipeToPlanAsync(plan);
+            selectedRecipeIds[$"{date:yyyy-MM-dd}_{mealType}"] = 0; // reset selection after add
+            await LoadMealPlansAsync();
+        }
+    }
+
+    private async Task RemoveMeal(int planId)
+    {
+        await MealPlanService.RemoveRecipeFromPlanAsync(planId);
+        await LoadMealPlansAsync();
+    }
+}

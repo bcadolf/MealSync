@@ -1,0 +1,158 @@
+@page "/recipes/edit/{id:int}"
+@using MealSync.Core.Entities
+@using MealSync.Core.Interfaces
+@inject IRecipeService RecipeService
+@inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@using System.Security.Claims
+@attribute [Authorize]
+
+<PageTitle>Edit Recipe</PageTitle>
+
+<h1>Edit Recipe</h1>
+
+<hr />
+@if (recipe == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm Model="@recipe" OnValidSubmit="HandleValidSubmit">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="form-group mb-3">
+                    <label for="Title" class="control-label">Title</label>
+                    <InputText id="Title" class="form-control" @bind-Value="recipe.Title" />
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="Description" class="control-label">Description</label>
+                    <InputTextArea id="Description" class="form-control" @bind-Value="recipe.Description" />
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="Instructions" class="control-label">Instructions</label>
+                    <InputTextArea id="Instructions" class="form-control" @bind-Value="recipe.Instructions" />
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="PrepTime" class="control-label">Prep Time (min)</label>
+                    <InputNumber id="PrepTime" class="form-control" @bind-Value="recipe.PrepTime" />
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="CookTime" class="control-label">Cook Time (min)</label>
+                    <InputNumber id="CookTime" class="form-control" @bind-Value="recipe.CookTime" />
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="Servings" class="control-label">Servings</label>
+                    <InputNumber id="Servings" class="form-control" @bind-Value="recipe.Servings" />
+                </div>
+
+                <div class="form-group form-check mb-3">
+                    <label class="form-check-label">
+                        <InputCheckbox class="form-check-input" @bind-Value="recipe.IsPublic" /> Is Public
+                    </label>
+                </div>
+
+                <h4>Ingredients</h4>
+                <div class="mb-3">
+                    @foreach (var (ri, index) in recipeIngredients.Select((ri, i) => (ri, i)))
+                    {
+                        <div class="d-flex mb-2 align-items-center">
+                            <InputText class="form-control me-2" placeholder="Ingredient Name" @bind-Value="ri.Ingredient!.Name" />
+                            <InputNumber class="form-control me-2" style="width: 100px;" placeholder="Qty" @bind-Value="ri.Quantity" />
+                            <InputText class="form-control me-2" style="width: 100px;" placeholder="Unit" @bind-Value="ri.Unit" />
+                            <button type="button" class="btn btn-danger btn-sm" @onclick="() => RemoveIngredient(index)">X</button>
+                        </div>
+                    }
+                    <button type="button" class="btn btn-secondary btn-sm" @onclick="AddIngredient">Add Ingredient</button>
+                </div>
+
+                <div class="form-group mt-4">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div>
+    <a href="/recipes">Back to List</a>
+</div>
+
+@code {
+    [Parameter]
+    public int id { get; set; }
+
+    private Recipe? recipe;
+    private List<RecipeIngredient> recipeIngredients = new List<RecipeIngredient>();
+    private string? userId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity is not null && user.Identity.IsAuthenticated)
+        {
+            userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        }
+
+        if (string.IsNullOrEmpty(userId))
+        {
+            Navigation.NavigateTo("/Account/Login", forceLoad: true);
+            return;
+        }
+
+        recipe = await RecipeService.GetRecipeByIdAsync(id);
+
+        if (recipe == null || recipe.UserId != userId)
+        {
+            Navigation.NavigateTo("/recipes");
+            return;
+        }
+
+        if (recipe.RecipeIngredients != null)
+        {
+            recipeIngredients = recipe.RecipeIngredients.ToList();
+        }
+
+        if (!recipeIngredients.Any())
+        {
+            AddIngredient();
+        }
+    }
+
+    private void AddIngredient()
+    {
+        recipeIngredients.Add(new RecipeIngredient { Ingredient = new Ingredient() });
+    }
+
+    private void RemoveIngredient(int index)
+    {
+        if (index >= 0 && index < recipeIngredients.Count)
+        {
+            recipeIngredients.RemoveAt(index);
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (recipe != null)
+        {
+            // Filter out empty ingredients
+            recipe.RecipeIngredients = recipeIngredients
+                .Where(ri => !string.IsNullOrWhiteSpace(ri.Ingredient?.Name))
+                .ToList();
+
+            await RecipeService.UpdateRecipeAsync(recipe);
+            Navigation.NavigateTo("/recipes");
+        }
+    }
+}
