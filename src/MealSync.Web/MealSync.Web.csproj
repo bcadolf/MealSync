@@ -24,6 +24,8 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
+    <!-- Add this line to set default DbContext -->
+    <EfCoreDefaultDbContext>MealSync.Infrastructure.Data.MealSyncDbContext</EfCoreDefaultDbContext>
   </PropertyGroup>
 
 </Project>
