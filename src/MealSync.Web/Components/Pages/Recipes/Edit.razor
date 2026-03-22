@@ -110,7 +110,34 @@ else
             return;
         }
 
-        recipe = await RecipeService.GetRecipeByIdAsync(id);
+        var dbRecipe = await RecipeService.GetRecipeByIdAsync(id);
+
+        recipe = new Recipe
+        {
+            RecipeId = dbRecipe.RecipeId,
+            Title = dbRecipe.Title,
+            Description = dbRecipe.Description,
+            Instructions = dbRecipe.Instructions,
+            PrepTime = dbRecipe.PrepTime,
+            CookTime = dbRecipe.CookTime,
+            Servings = dbRecipe.Servings,
+            IsPublic = dbRecipe.IsPublic,
+            UserId = dbRecipe.UserId,
+            RecipeIngredients = dbRecipe.RecipeIngredients
+                .Select(ri => new RecipeIngredient
+                {
+                    IngredientId = ri.IngredientId,
+                    Quantity = ri.Quantity,
+                    Unit = ri.Unit,
+                    Ingredient = new Ingredient
+                    {
+                        Name = ri.Ingredient.Name,
+                        Category = ri.Ingredient.Category
+                    }
+                })
+                .ToList()
+        };
+
 
         if (recipe == null || recipe.UserId != userId)
         {

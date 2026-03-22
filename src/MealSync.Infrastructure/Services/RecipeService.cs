@@ -59,21 +59,28 @@ namespace MealSync.Infrastructure.Services
                 // Update scalar properties
                 _context.Entry(existingRecipe).CurrentValues.SetValues(recipe);
 
-                // Update ingredients by replacing them
+                // Make a copy of the incoming ingredients BEFORE modifying tracked collections
+                var newIngredients = recipe.RecipeIngredients
+                    ?.Select(ri => new RecipeIngredient
+                    {
+                        RecipeId = recipe.RecipeId,
+                        Quantity = ri.Quantity,
+                        Unit = ri.Unit,
+                        Ingredient = new Ingredient
+                        {
+                            Name = ri.Ingredient?.Name ?? string.Empty
+                        }
+                    })
+                    .ToList();
+
+                // Remove old ingredients by replacing them
                 _context.RecipeIngredients.RemoveRange(existingRecipe.RecipeIngredients);
 
-                if (recipe.RecipeIngredients != null)
+                if (newIngredients != null)
                 {
-                    foreach (var ri in recipe.RecipeIngredients)
+                    foreach (var ri in newIngredients)
                     {
-                        var newRi = new RecipeIngredient
-                        {
-                            RecipeId = recipe.RecipeId,
-                            Quantity = ri.Quantity,
-                            Unit = ri.Unit,
-                            Ingredient = new Ingredient { Name = ri.Ingredient?.Name ?? string.Empty }
-                        };
-                        _context.RecipeIngredients.Add(newRi);
+                        _context.RecipeIngredients.Add(ri);
                     }
                 }
 

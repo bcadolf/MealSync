@@ -7,7 +7,24 @@
     <p>Cook Time: @Recipe.CookTime minutes</p>
 
     @if (IsFullView) {
-        <p>test</p>
+        <div>
+            <p>Serves: @Recipe.Servings</p>
+            <p>@Recipe.Description</p>
+            <h4>
+                Ingredients:
+            </h4>
+            <ul>
+                @foreach (var ingredient in Recipe.RecipeIngredients) {
+                    <li>@ingredient.Ingredient.Name - @ingredient.Quantity @ingredient.Unit</li>
+                }
+            </ul>
+            <h4>
+                Instructions:
+            </h4>
+            <p>@Recipe.Instructions</p>
+        </div>
+        <a class="btn" href="/recipes/edit/@Recipe.RecipeId">Edit Recipe</a>
+        <a class="btn" href="/recipes/delete/@Recipe.RecipeId">Delete Recipe</a>
     }
     <button class="btn" @onclick="() => OnViewDetails.InvokeAsync(Recipe)">@(IsFullView ? "Hide Details" : "View Details")</button>
 </div>
