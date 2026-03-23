@@ -5,87 +5,199 @@
 @inject IRecipeService RecipeService
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @using System.Security.Claims
+@using Microsoft.JSInterop
+@using System.Runtime.CompilerServices
+@inject IJSRuntime JS
+
 @attribute [Authorize]
 
 <PageTitle>Meal Planner</PageTitle>
 
 <h1>Meal Planner Calendar</h1>
 
-<div class="row mb-3">
-    <div class="col-md-4">
-        <button class="btn btn-secondary" @onclick="PreviousWeek">Previous Week</button>
-        <button class="btn btn-secondary" @onclick="NextWeek">Next Week</button>
+@* Buttons*@
+<div class="mb-3">
+    @* Weekly/Montly view buttons, and they reflect the current view mode*@
+    <button class="btn @(viewMode == "Week" ? "btn-primary" : "btn-outline-primary") me-2" @onclick='() => SetView("Week")'>Weekly View</button>
+    <button class="btn @(viewMode == "Month" ? "btn-primary" : "btn-outline-primary")" @onclick='() => SetView("Month")'>Monthly View</button>
+    @* print button*@
+    <button class="btn btn-outline-secondary" @onclick="PrintMealPlan">Print / Save PDF</button>
+</div>
+
+<div class="row mb-3 no-print">
+    <div class="col-md-6">
+        @if (viewMode == "Week")
+        {
+            <button class="btn btn-secondary me-2" @onclick="PreviousWeek">Previous Week</button>
+            <button class="btn btn-secondary" @onclick="NextWeek">Next Week</button>
+        }
+        else if (viewMode == "Month")
+        {
+            <button class="btn btn-secondary me-2" @onclick="PreviousMonth">Previous Month</button>
+            <button class="btn btn-secondary" @onclick="NextMonth">Next Month</button>
+        }
     </div>
-    <div class="col-md-8 text-end">
-        <h4>Week of @currentWeekStart.ToShortDateString()</h4>
+    <div class="col-md-6 text-end">
+        @if (viewMode == "Week")
+        {
+            <h4>Week of @currentWeekStart.ToShortDateString()</h4>
+        }
+        else if (viewMode == "Month")
+        {
+            <h4>@currentMonthDate.ToString("MMMM yyyy")</h4>
+        }
     </div>
 </div>
 
-<table class="table table-bordered text-center">
-    <thead>
-        <tr>
-            <th>Meal / Day</th>
-            @for (int i = 0; i < 7; i++)
-            {
-                var day = currentWeekStart.AddDays(i);
-                <th>
-                    <div>@day.ToString("dddd")</div>
-                    <small class="text-muted">@day.ToShortDateString()</small>
-                </th>
-            }
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var mealType in mealTypes)
-        {
+@if (viewMode == "Week")
+{
+    @* Weekly view *@
+    <table class="table table-bordered text-center">
+        <thead>
             <tr>
-                <td class="align-middle fw-bold">@mealType</td>
+                <th>Meal / Day</th>
                 @for (int i = 0; i < 7; i++)
                 {
                     var day = currentWeekStart.AddDays(i);
-                    var dayMeals = mealPlans.Where(mp => mp.Date.Date == day.Date && mp.MealType == mealType).ToList();
-                    <td>
-                        <div style="min-height: 80px;" class="border rounded p-2 mb-2 bg-light">
-                            @if (dayMeals.Any())
-                            {
-                                @foreach (var plan in dayMeals)
-                                {
-                                    <div class="mb-1 p-1 bg-white border d-flex justify-content-between align-items-center">
-                                        <span class="text-truncate" style="max-width: 120px;" title="@plan.Recipe?.Title">@plan.Recipe?.Title</span>
-                                        <button class="btn btn-sm text-danger border-0 p-0" @onclick="() => RemoveMeal(plan.MealPlanId)">&times;</button>
-                                    </div>
-                                }
-                            }
-                            else
-                            {
-                                <small class="text-muted">No meal</small>
-                            }
-                        </div>
-                        <div class="d-flex mt-1">
-                            <select class="form-select form-select-sm me-1" @onchange="@(e => selectedRecipeIds[$"{day.Date:yyyy-MM-dd}_{mealType}"] = int.TryParse(e.Value?.ToString(), out var id) ? id : 0)">
-                                <option value="0">Select...</option>
-                                @foreach (var r in availableRecipes)
-                                {
-                                    <option value="@r.RecipeId">@r.Title</option>
-                                }
-                            </select>
-                            <button class="btn btn-sm btn-outline-primary" @onclick='() => AddMeal(day, mealType, selectedRecipeIds.GetValueOrDefault($"{day.Date:yyyy-MM-dd}_{mealType}", 0))'>Add</button>
-                        </div>
-                    </td>
+                    <th>
+                        <div>@day.ToString("dddd")</div>
+                        <small class="text-muted">@day.ToShortDateString()</small>
+                    </th>
                 }
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var mealType in mealTypes)
+            {
+                <tr>
+                    <td class="align-middle fw-bold">@mealType</td>
+                    @for (int i = 0; i < 7; i++)
+                    {
+                        var day = currentWeekStart.AddDays(i);
+                        var dayMeals = mealPlans.Where(mp => mp.Date.Date == day.Date && mp.MealType == mealType).ToList();
+                        <td>
+                            <div style="min-height: 80px;" class="border rounded p-2 mb-2 bg-light">
+                                @if (dayMeals.Any())
+                                {
+                                    @foreach (var plan in dayMeals)
+                                    {
+                                        <div class="mb-1 p-1 bg-white border d-flex justify-content-between align-items-center">
+                                            <span class="text-truncate" style="max-width: 120px;" title="@plan.Recipe?.Title">@plan.Recipe?.Title</span>
+                                            <button class="btn btn-sm text-danger border-0 p-0" @onclick="() => RemoveMeal(plan.MealPlanId)">&times;</button>
+                                        </div>
+                                    }
+                                }
+                                else
+                                {
+                                    <small class="text-muted">No meal</small>
+                                }
+                            </div>
+                            <div class="d-flex mt-1">
+                                <select class="form-select form-select-sm me-1" @onchange="@(e => selectedRecipeIds[$"{day.Date:yyyy-MM-dd}_{mealType}"] = int.TryParse(e.Value?.ToString(), out var id) ? id : 0)">
+                                    <option value="0">Select...</option>
+                                    @foreach (var r in availableRecipes)
+                                    {
+                                        <option value="@r.RecipeId">@r.Title</option>
+                                    }
+                                </select>
+                                <button class="btn btn-sm btn-outline-primary" @onclick='() => AddMeal(day, mealType, selectedRecipeIds.GetValueOrDefault($"{day.Date:yyyy-MM-dd}_{mealType}", 0))'>Add</button>
+                            </div>
+                        </td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+else if (viewMode == "Month")
+{
+    @* Monthly view*@
+    
+    var firstDayofMonth = new DateTime(currentMonthDate.Year, currentMonthDate.Month, 1); //get first day of month being viewed
+    var daysInMonth = DateTime.DaysInMonth(currentMonthDate.Year, currentMonthDate.Month); // # of days in the month
+    var startDayOffset = (int)firstDayofMonth.DayOfWeek; // figure out wht day of the week the month starts on
+    var totalCells = startDayOffset + daysInMonth;      //add blank cell blocks before day 1 of month if month starts after Sunday
+    var totalRows = (int)Math.Ceiling(totalCells / 7.0); // # of rows needed
+    var dayNumber = 1;
+    
+
+    <table class="table table-bordered align-middle">
+        <thead class="text-center">
+            <tr>
+                <th>Sunday</th>
+                <th>Monday</th>
+                <th>Tuesday</th>
+                <th>Wednesday</th>
+                <th>Thursday</th>
+                <th>Friday</th>
+                <th>Saturday</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int row = 0; row < totalRows; row++)
+            {
+                <tr>
+                    @for (int col = 0; col < 7; col++)
+                    {
+                        // which cell are we on..figure it out here
+                        var cellIndex = row * 7 + col;
+                        // Empty cells before the first day of the month
+                        @if (cellIndex < startDayOffset || dayNumber > daysInMonth)
+                        {
+                            <td style="height: 140px; background-color: #f8f9fa;"></td>
+                        }
+                        else
+                        {
+                            // full date
+                            var currentDate = new DateTime(currentMonthDate.Year, currentMonthDate.Month, dayNumber);
+                            // Get all meals planned for this date
+                            var mealsForDay = mealPlans
+                                .Where(mp => mp.Date.Date == currentDate.Date)
+                                .OrderBy(mp => mp.MealType)
+                                .ToList();
+
+                            <td style="height: 140px; vertical-align: top;">
+                                <div class="fw-bold mb-2">@dayNumber</div>
+
+                                @if (mealsForDay.Any())
+                                {
+                                    @foreach (var meal in mealsForDay)
+                                    {
+                                        <div class="border rounded p-1 mb-1 bg-light small">
+                                            <div class="fw-semibold">@meal.MealType</div>
+                                            <div title="@meal.Recipe?.Title">@meal.Recipe?.Title</div>
+                                        </div>
+                                    }
+                                }
+                                else
+                                 {
+                                    <small class="text-muted">No meals</small>
+                                 }
+                            </td>
+
+                            //move to the next calendar day
+                            dayNumber++;
+                        }
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+}
 
 @code {
     private DateTime currentWeekStart;
+    private DateTime currentMonthDate;
     private readonly string[] mealTypes = new[] { "Breakfast", "Lunch", "Dinner", "Snack" };
 
     private List<MealPlan> mealPlans = new();
     private List<Recipe> availableRecipes = new();
     private Dictionary<string, int> selectedRecipeIds = new();
     private string? userId;
+
+    // View mode variable
+    private string viewMode = "Week"; // default Week
 
     protected override async Task OnInitializedAsync()
     {
@@ -96,14 +208,26 @@
         var today = DateTime.Today;
         int diff = (7 + (today.DayOfWeek - DayOfWeek.Sunday)) % 7;
         currentWeekStart = today.AddDays(-1 * diff);
+        //Track the current month separately from the week
+        currentMonthDate = DateTime.Today;
 
         availableRecipes = await RecipeService.GetAllRecipesAsync(userId);
         await LoadMealPlansAsync();
     }
 
+    // Load meal plans for hte current view range selected
     private async Task LoadMealPlansAsync()
     {
-        mealPlans = await MealPlanService.GetMealPlansAsync(currentWeekStart, currentWeekStart.AddDays(6), userId);
+        if (viewMode == "Month")
+        {
+            var firstDayofMonth = new DateTime(currentMonthDate.Year, currentMonthDate.Month, 1);
+            var lastDayofMonth = firstDayofMonth.AddMonths(1).AddDays(-1);
+            mealPlans = await MealPlanService.GetMealPlansAsync(firstDayofMonth, lastDayofMonth, userId);
+        }
+        else
+        {
+            mealPlans = await MealPlanService.GetMealPlansAsync(currentWeekStart, currentWeekStart.AddDays(6), userId);            
+        }
     }
 
     private async Task PreviousWeek()
@@ -115,6 +239,19 @@
     private async Task NextWeek()
     {
         currentWeekStart = currentWeekStart.AddDays(7);
+        await LoadMealPlansAsync();
+    }
+
+    // move to the previous month and reload the meal plans
+    private async Task PreviousMonth()
+    {
+        currentMonthDate = new DateTime(currentMonthDate.Year, currentMonthDate.Month, 1).AddMonths(-1);
+        await LoadMealPlansAsync();
+    }
+    // Move to the next month and reload the meal plans
+    private async Task NextMonth()
+    {
+        currentMonthDate = new DateTime(currentMonthDate.Year, currentMonthDate.Month, 1).AddMonths(1);
         await LoadMealPlansAsync();
     }
 
@@ -141,4 +278,18 @@
         await MealPlanService.RemoveRecipeFromPlanAsync(planId);
         await LoadMealPlansAsync();
     }
+
+    // switch between week and month view
+    private async Task SetView(string mode)
+    {
+        viewMode = mode;
+        await LoadMealPlansAsync();
+    }
+
+    // Open the browser print window to print/save as PDF
+    private async Task PrintMealPlan()
+    {
+        await JS.InvokeVoidAsync("window.print");
+    }
+
 }
