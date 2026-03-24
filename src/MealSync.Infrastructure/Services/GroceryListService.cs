@@ -115,5 +115,24 @@ namespace MealSync.Infrastructure.Services
                 await _context.SaveChangesAsync();
             }
         }
+        public async Task<List<GroceryListItem>> AddGroceryIngredientAsync(List<GroceryListItem> groceryListItems, GroceryList groceryList, string? userId = null)
+        {
+
+            foreach (GroceryListItem item in groceryListItems)
+            {
+                groceryList.Items.Add(item); // no need to call context since it was called in grocerylist and grocerylistitems
+            }
+
+            await _context.SaveChangesAsync();
+
+            return groceryListItems;
+        }
+
+        public async Task<GroceryListItem> UpdateGroceryIngredientAsync(GroceryListItem groceryListItem)
+        {
+            await _context.SaveChangesAsync();
+            return groceryListItem;
+
+        }
     }
 }

@@ -1,0 +1,43 @@
+.btn {
+  width: 220px;
+  padding: 1rem 0.7rem;
+  background-color: #c46a3b;
+  border: none;
+  border-radius: 1rem;
+  margin: 0.2rem 0;
+}
+
+.btn:hover {
+  background-color: #8a3b32;
+}
+
+.btn-primary:active {
+  background-color: #8a3b32;
+}
+
+.span {
+  margin-left: 1rem;
+}
+
+.list-group {
+  padding: 1.5rem 1rem;
+  width: 500px;
+  min-height: 600px;
+  box-shadow: 5px 5px 20px #c8c8c8;
+  list-style-type: none;
+}
+
+InputCheckbox[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+}
+
+::deep .edit-item > input {
+  display: inline-block;
+  width: 70px;
+}
+
+.edit-btn {
+  width: 100px;
+  padding: 0.2rem 0.5rem;
+}

@@ -8,6 +8,9 @@ namespace MealSync.Core.Interfaces
     {
         Task<GroceryList> GenerateGroceryListAsync(DateTime start, DateTime end, string? userId = null);
         Task<GroceryList?> GetLatestGroceryListAsync(string? userId = null);
+        Task<List<GroceryListItem?>> AddGroceryIngredientAsync(List<GroceryListItem> groceryListItems, GroceryList groceryList, string? userId = null);
+
+        Task<GroceryListItem> UpdateGroceryIngredientAsync(GroceryListItem groceryListItem);
         Task ToggleItemCheckedAsync(int listItemId);
     }
 }
