@@ -120,11 +120,9 @@ namespace MealSync.Infrastructure.Services
 
             foreach (GroceryListItem item in groceryListItems)
             {
-                groceryList.Items.Add(item);
-                _context.GroceryListItems.Add(item);
+                groceryList.Items.Add(item); // no need to call context since it was called in grocerylist and grocerylistitems
             }
 
-            // _context.GroceryLists.Add(groceryList);
             await _context.SaveChangesAsync();
 
             return groceryListItems;

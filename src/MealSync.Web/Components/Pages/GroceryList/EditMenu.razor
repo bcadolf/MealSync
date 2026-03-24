@@ -1,0 +1,31 @@
+@using MealSync.Core.Entities
+@using MealSync.Core.Interfaces
+@using Microsoft.EntityFrameworkCore.Query
+@inject IGroceryListService GroceryListService
+
+
+@if (editMenuUI.visible)
+{
+    <div class="edit-item">
+        <InputText class="input-item" placeholder="Ingredient Name" @bind-Value="item.Ingredient!.Name" />
+        <InputNumber class="input-item" placeholder="Qty" @bind-Value="item.Quantity" />
+        <InputText class="input-item" placeholder="Unit" @bind-Value="item.Unit" />
+        <button class="edit-btn btn btn-primary" type="submit" @onclick="() => HandleEditItem(item)">Edit
+            Item</button>
+        </div>
+    }
+
+@code {
+
+    [Parameter]
+    public GroceryListItem item { get; set; }
+
+    [Parameter]
+    public EditMenuUI editMenuUI { get; set; }
+
+
+    public async Task HandleEditItem(GroceryListItem item)
+    {
+        await GroceryListService.UpdateGroceryIngredientAsync(item);
+    }
+}
