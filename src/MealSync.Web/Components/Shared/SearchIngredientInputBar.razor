@@ -1,0 +1,68 @@
+@using MealSync.Core.Entities
+@using MealSync.Core.Interfaces
+@using Microsoft.AspNetCore.Components.Forms
+
+@inject IIngredientService IngredientService
+
+<div class="position-relative">
+    <InputText class="form-control"
+                placeholder="Search or add ingredient..."
+                @bind-Value="Value"
+                oninput="@( (ChangeEventArgs e) => OnInputChanged(e.Value?.ToString()) )" />
+    
+    @if (ShowDropdown && FoundIngredients.Any())
+    {
+        <div class="list-group position-absolute w-100" style="z-index: 1000; max-height: 200px; overflow-y: auto;">
+            @if (FoundIngredients.Any()) {
+                @foreach (var ingredient in FoundIngredients) {
+                    <button @onclick="() => SelectIngredient(ingredient.Name)">
+                        @ingredient.Name
+                    </button>
+                }
+            }
+        </div>
+    } else {
+        <button @onclick="() => AddNewIngredient()">
+            Add "@Value"
+        </button>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public string? Value { get; set; }
+    [Parameter]
+    public EventCallback<string?> ValueChanged { get; set; }
+    [Parameter]
+    public EventCallback<string> OnIngredientSelected { get; set; }
+    
+    private List<Ingredient> FoundIngredients { get; set; } = new();
+    private bool ShowDropdown { get; set; } = false;
+
+    private async Task OnInputChanged(string? ingredientName) {
+        Value = ingredientName;
+        await ValueChanged.InvokeAsync(Value);
+
+        if (string.IsNullOrWhiteSpace(ingredientName)) {
+            ShowDropdown = false;
+            FoundIngredients = new();
+            return;
+        }
+
+        var results = await IngredientService.SearchAsync(ingredientName);
+        FoundIngredients = results.ToList();
+        ShowDropdown = true;
+    }
+
+    private async Task SelectIngredient(string ingredientName) {
+        Value = ingredientName;
+        await ValueChanged.InvokeAsync(Value);
+        await OnIngredientSelected.InvokeAsync(ingredientName);
+        ShowDropdown = false;
+    }
+
+    private async Task AddNewIngredient() {
+        var newIngredient = await IngredientService.AddAsync(Value!);
+        await SelectIngredient(newIngredient.Name);
+    }
+}

@@ -24,6 +24,7 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.R
 builder.Services.AddScoped<MealSync.Core.Interfaces.IRecipeService, MealSync.Infrastructure.Services.RecipeService>();
 builder.Services.AddScoped<MealSync.Core.Interfaces.IMealPlanService, MealSync.Infrastructure.Services.MealPlanService>();
 builder.Services.AddScoped<MealSync.Core.Interfaces.IGroceryListService, MealSync.Infrastructure.Services.GroceryListService>();
+builder.Services.AddScoped<MealSync.Core.Interfaces.IIngredientService, MealSync.Infrastructure.Services.IngredientService>();
 
 var app = builder.Build();
 

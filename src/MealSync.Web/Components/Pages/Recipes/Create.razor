@@ -1,6 +1,7 @@
 @page "/recipes/create"
 @using MealSync.Core.Entities
 @using MealSync.Core.Interfaces
+@using MealSync.Web.Components.Shared
 @inject IRecipeService RecipeService
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider AuthenticationStateProvider
@@ -59,7 +60,9 @@
                 @foreach (var (ri, index) in recipeIngredients.Select((ri, i) => (ri, i)))
                 {
                     <div class="d-flex mb-2 align-items-center">
-                        <InputText class="form-control me-2" placeholder="Ingredient Name" @bind-Value="ri.Ingredient!.Name" />
+                        <SearchIngredientInputBar 
+                        @bind-Value="ri.Ingredient!.Name"
+                        OnIngredientSelected="(name) => ri.Ingredient!.Name = name" />
                         <InputNumber class="form-control me-2" style="width: 100px;" placeholder="Qty" @bind-Value="ri.Quantity" />
                         <InputText class="form-control me-2" style="width: 100px;" placeholder="Unit" @bind-Value="ri.Unit" />
                         <button type="button" class="btn btn-danger btn-sm" @onclick="() => RemoveIngredient(index)">X</button>
