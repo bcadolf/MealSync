@@ -41,3 +41,64 @@ InputCheckbox[type="checkbox"] {
   width: 100px;
   padding: 0.2rem 0.5rem;
 }
+
+/* print area */
+/* Recieved some help from ai to get this information about how to style it appropriately */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  #printArea,
+  #printArea * {
+    visibility: visible;
+  }
+
+  #printArea {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
+
+}
+
+/* Select forms styling */
+select,
+::picker(select) {
+  appearance: base-select;
+}
+
+select {
+  background: #eadbb7;
+  border: 2px solid #8a3b32;
+  border-radius: 1rem;
+}
+
+select::picker-icon {
+  color: #c46a3b;
+}
+
+::picker(select) {
+  border: none;
+  border-radius: 1.2rem;
+}
+
+option {
+  padding: 1rem;
+  background: #8a3b32;
+  color: white;
+}
+
+option:hover,
+option:focus {
+  background: #784842;
+}
+
+option:first-of-type {
+  border-radius: 1.2rem 1.2rem 0 0;
+}
+
+option:last-of-type {
+  border-radius: 0 0 1.2rem 1.2rem;
+}
