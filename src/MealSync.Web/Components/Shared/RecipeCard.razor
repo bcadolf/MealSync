@@ -1,7 +1,13 @@
 @using MealSync.Core.Entities
+@inject IJSRuntime JSRuntime
 
 
-<div class="recipe-card @CssView @(IsFullView ? "show-full" : "")">
+<div class="recipe-card @CssView @(IsFullView ? "show-full" : "")" id="@(IsFullView ? "print-cont" : "")">
+    @if (IsFullView) {
+        <button title="Print Recipe" @onclick="PrintContent" class="btn print-btn">
+           Print 🖨
+        </button>
+    }
     <h3>@Recipe.Title</h3>
     <p>Prep Time: @Recipe.PrepTime minutes</p>
     <p>Cook Time: @Recipe.CookTime minutes</p>
@@ -40,7 +46,10 @@
     [Parameter]
     public bool IsFullView { get; set; }
 
-
+    private async Task PrintContent() {
+        // Used CSS to only print the recipe with native print to avoid popup blockers.
+        await JSRuntime.InvokeVoidAsync("print");
+    }
 
 
 

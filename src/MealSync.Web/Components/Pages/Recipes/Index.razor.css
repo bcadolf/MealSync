@@ -1,0 +1,29 @@
+.list {
+  display: flex;
+  flex-direction: column;
+}
+
+.grid {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-around;
+  flex-wrap: wrap;
+}
+
+.btn {
+  width: auto;
+  padding: 0.5rem;
+  background-color: #c46a3b;
+  border: 2px dashed #376c3d;
+  border-radius: 0.5rem;
+  margin: 0.2rem;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 500;
+  box-shadow: 2px 2px 4px 2px #8a3b32;
+}
+
+.btn:hover {
+  background-color: #8a3b32;
+}

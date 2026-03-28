@@ -19,6 +19,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  width: 150px;
 }
 
 .show-full {
@@ -28,4 +29,22 @@
   justify-content: center;
   width: 90%;
   height: 100%;
+  order: -1;
+}
+
+.btn {
+  width: auto;
+  padding: 0.3rem;
+  background-color: #c46a3b;
+  border: 2px dashed #376c3d;
+  border-radius: 1rem;
+  margin: 0.2rem;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 500;
+  box-shadow: 2px 2px 4px 2px #8a3b32;
+}
+
+.btn:hover {
+  background-color: #8a3b32;
 }
