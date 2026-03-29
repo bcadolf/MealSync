@@ -30,6 +30,16 @@ namespace MealSync.Infrastructure.Services
         await _context.SaveChangesAsync();
         return ingredient;
     }
+
+    public async Task<Ingredient?> GetByExactNameAsync(string name)
+    {
+        var normalized = name.Trim().ToLower();
+
+        return await _context.Ingredients
+            .Where(i => i.Name.ToLower() == normalized)
+            .FirstOrDefaultAsync();
+    }
+
 }
 
 }

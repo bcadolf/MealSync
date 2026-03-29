@@ -5,15 +5,15 @@
 @inject IIngredientService IngredientService
 
 <div class="position-relative">
-    <InputText class="form-control"
-                style="cursor: text;"
-                placeholder="Search ingredients..."
-                @bind-Value="SearchText"
-                oninput="@( (ChangeEventArgs e) => OnSearchChanged(e.Value?.ToString()) )" />
+    <input class="form-control"
+           style="cursor: text;"
+           placeholder="Search ingredients..."
+           value="@SearchText"
+           @oninput="@(async (ChangeEventArgs e) => await OnSearchChanged(e.Value?.ToString()))" />
     
     @if (FilteredIngredients.Any())
     {
-        <div class="border rounded mt-1 bg white position-absolute w-100" style="z-index: 1000; max-height: 200px; overflow-y: auto;">
+        <div class="border rounded mt-1 my-dropdown position-absolute w-100" style="z-index: 1000; max-height: 200px; overflow-y: auto;">
 
             @foreach (var ingredient in FilteredIngredients) {
                 <div class="p-2 dropdown-item" style="cursor: pointer;" @onclick="() => SelectedIngredient(ingredient.Name)">
@@ -36,9 +36,20 @@
     private List<Ingredient> FilteredIngredients { get; set; } = new();
     private string? SearchText { get; set; }
 
+    protected override void OnParametersSet()
+    {
+        if (SearchText == null && Value != null)
+        {
+            SearchText = Value;
+        }
+    }
+
 
     private async Task OnSearchChanged(string? ingredientName) {
         SearchText = ingredientName;
+        Value = ingredientName;
+
+        await ValueChanged.InvokeAsync(Value);
 
         if (string.IsNullOrWhiteSpace(ingredientName)) {
             FilteredIngredients.Clear();

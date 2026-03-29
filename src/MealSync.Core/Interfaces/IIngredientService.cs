@@ -6,5 +6,6 @@ namespace MealSync.Core.Interfaces
     {
         Task<List<Ingredient>> SearchAsync(string query);
         Task<Ingredient> AddAsync(string name);
+        Task<Ingredient?> GetByExactNameAsync(string name);
     }
 }
