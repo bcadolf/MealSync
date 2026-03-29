@@ -1,3 +1,347 @@
+:root {
+    --ms-terracotta: #c46a3b;
+    --ms-green: #376c3d;
+    --ms-cream: #eadbb7;
+    --ms-gold: #e2a743;
+    --ms-deeprust: #8a3b32;
+}
+
+/* LAYOUT */
+
+.meal-planner-layout {
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+}
+
+.recipe-panel {
+    flex: 1;
+    background: #376c3d;
+    color: white;
+    border: 2px solid #c46a3b;
+    border-radius: 12px;
+    padding: 1rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.recipe-panel h4 {
+    color: #eadbb7;
+    margin-bottom: 1rem;
+    font-size: larger;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-align: center;
+    padding-bottom: 0.4rem;
+    border-bottom: 2px solid rgba(234, 219, 183, 0.4);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.calendar-panel {
+    flex: 3;
+    background: #eadbb7;
+    border-radius: 12px;
+    padding: 1rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.recipe-item-card {
+    background: #eadbb7;
+    border: 2px solid #c46a3b;
+    color: #8a3b32;
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.75rem;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+    cursor: grab;
+}
+
+.recipe-item-card:hover {
+    background: #8a3b32;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.recipe-item-card:active {
+    cursor: grabbing;
+    transform: scale(0.98);
+}
+
+td:hover {
+    background-color: #eadbb7;
+    transition: background-color 0.2s ease;
+}
+
+.recipe-item-card.dragging {
+    opacity: 0.5;
+}
+
+.meal-add-controls {
+    display: flex;
+    gap: 0.35rem;
+    align-items: center;
+    margin-top: 0.5rem;
+}
+
+.meal-add-controls select {
+    flex: 1;
+    min-width: 0;
+}
+
+.meal-add-controls .btn {
+    white-space: nowrap;
+}
+
+.meal-cell {
+    vertical-align: top;
+    min-width: 125px;
+    padding: 0.6rem;
+}
+
+.meal-slot {
+    min-height: 95px;
+    background: #eadbb7;
+    border: 1px solid #c46a3b;
+    border-radius: 10px;
+    padding: 0.65rem;
+    margin-bottom: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.planned-meal-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+    background: #ffffff;
+    border: 1px solid #8a3b32;
+    border-radius: 8px;
+    padding: 0.35rem 0.5rem;
+    margin-bottom: 0.4rem;
+}
+
+.planned-meal-item button {
+    color: #8a3b32;
+    font-weight: bold;
+}
+
+.planned-meal-item button:hover {
+    color: #376c3d;
+}
+
+.meal-title {
+    display: block;
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #376c3d;
+    font-weight: 600;
+}
+
+.meal-title:hover {
+    color: #8a3b32;
+}
+
+.no-meal-text {
+    color: #c46a3b;
+    font-size: 0.9rem;
+}
+
+.calendar-panel th {
+    vertical-align: middle;
+    padding: 0.9rem 0.5rem;
+}
+
+.calendar-panel th small {
+    display: block;
+    margin-top: 0.5rem;
+}
+
+.calendar-panel td.align-middle.fw-bold {
+    vertical-align: middle !important;
+    text-align: center;
+    min-width: 90px;
+}
+
+.weekly-list-view {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.day-list-card {
+    background: #eadbb7;
+    border: 2px solid #c46a3b;
+    border-radius: 12px;
+    padding: 1rem;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+.day-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.9rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(196, 106, 59, 0.35);
+}
+
+.day-list-header h5 {
+    margin: 0;
+    color: #8a3b32;
+    font-weight: 700;
+}
+
+.day-list-header span {
+    color: #376c3d;
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.day-list-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+
+.list-meal-row {
+    display: grid;
+    grid-template-columns: 110px 1fr auto;
+    gap: 0.75rem;
+    align-items: start;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(196, 106, 59, 0.2);
+}
+
+.list-meal-row:last-child {
+    border-bottom: none;
+}
+
+.list-meal-label {
+    font-weight: 700;
+    color: #376c3d;
+    padding-top: 0.35rem;
+}
+
+.list-meal-content {
+    min-width: 0;
+}
+
+.list-add-controls {
+    min-width: 220px;
+}
+
+.list-drop-zone {
+    background: rgba(255, 255, 255, 0.45);
+    border: 1px solid #c46a3b;
+    border-radius: 8px;
+    padding: 0.5rem;
+    min-height: 52px;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.list-drop-zone:hover {
+    background: rgba(255, 255, 255, 0.8);
+    border-color: #8a3b32;
+}
+
+.monthly-calendar {
+    table-layout: fixed;
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0.45rem;
+}
+
+.monthly-calendar th {
+    text-align: center;
+    color: #8a3b32;
+    font-weight: 700;
+    padding: 0.85rem 0.4rem;
+    border: none;
+}
+
+.monthly-day-cell,
+.monthly-empty-cell {
+    height: 150px;
+    vertical-align: top;
+    padding: 0;
+    border: none !important;
+    background: transparent;
+}
+
+.monthly-day-cell {
+    background: #eadbb7;
+}
+
+.monthly-empty-cell {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.monthly-day-box,
+.monthly-empty-box {
+    height: 100%;
+    min-height: 150px;
+    border-radius: 12px;
+    padding: 0.55rem;
+}
+
+.monthly-day-box {
+    background: #eadbb7;
+    border: 1px solid #c46a3b;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.monthly-empty-box {
+    background: rgba(255, 255, 255, 0.18);
+    border: 1px solid rgba(0, 0, 0, 0.15);
+}
+
+.monthly-day-number {
+    font-weight: 700;
+    color: #8a3b32;
+    margin-bottom: 0.45rem;
+}
+
+.monthly-meal-card {
+    background: #ffffff;
+    border: 1px solid #c46a3b;
+    border-radius: 8px;
+    padding: 0.35rem 0.45rem;
+    margin-bottom: 0.35rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+.monthly-meal-type {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #8a3b32;
+    margin-bottom: 0.1rem;
+}
+
+.monthly-meal-title {
+    font-size: 0.78rem;
+    color: #376c3d;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+    min-width: 0;
+}
+
+.monthly-no-meals {
+    font-size: 0.78rem;
+    color: #c46a3b;
+    opacity: 0.9;
+}
+
+/* FOR PRINT PURPOSES */
+
 @media print {
     /* Hide buttons when printing*/
     .no-print {
