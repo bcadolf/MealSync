@@ -26,7 +26,7 @@ namespace MealSync.Infrastructure.Services
 
             if (!string.IsNullOrEmpty(userId))
             {
-                query = query.Where(r => r.UserId == userId || r.IsPublic);
+                query = query.Where(r => r.UserId == userId);
             }
 
             return await query.ToListAsync();

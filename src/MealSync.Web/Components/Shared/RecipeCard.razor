@@ -14,7 +14,13 @@
 
     @if (IsFullView) {
         <div>
-            <p>Serves: @Recipe.Servings</p>
+            <p>Serves: @Recipe.Servings</p> 
+            @if (Recipe.IsPublic) {
+                <p>Recipe is Public</p>
+            } else {
+               <p>Recipe is Private</p>
+            }
+            
             <p>@Recipe.Description</p>
             <h4>
                 Ingredients:
