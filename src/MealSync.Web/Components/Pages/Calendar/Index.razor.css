@@ -340,6 +340,71 @@ td:hover {
     opacity: 0.9;
 }
 
+.meal-btn {
+    background: #eadbb7;
+    color: #8a3b32;
+    border: 2px solid #c46a3b;
+    border-radius: 10px;
+    padding: 0.5rem 0.9rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.meal-btn:hover {
+    background: #e2a743;
+    color: #8a3b32;
+    transform: translateY(-1px);
+}
+
+.meal-btn-active {
+    background: #c46a3b;
+    color: #fffaf4;
+    border: 2px solid #c46a3b;
+    border-radius: 10px;
+    padding: 0.5rem 0.9rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.meal-btn-active:hover {
+    background: #8a3b32;
+    color: #fffaf4;
+}
+
+.meal-btn-print {
+    background: #376c3d;
+    color: #fffaf4;
+    border: 2px solid #376c3d;
+    border-radius: 10px;
+    padding: 0.5rem 0.9rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.meal-btn-print:hover {
+    background: #e2a743;
+    color: #8a3b32;
+    border-color: #e2a743;
+}
+
+.meal-btn-nav {
+    background: #eadbb7;
+    color: #8a3b32;
+    border: 2px solid #376c3d;
+    border-radius: 10px;
+    padding: 0.25rem 0.9rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.meal-btn-nav:hover {
+    background: #e2a743;
+    color: #8a3b32;
+    border-color: #e2a743; 
+    transition: all 0.2s ease;
+}
+
+
 /* FOR PRINT PURPOSES */
 
 @media print {

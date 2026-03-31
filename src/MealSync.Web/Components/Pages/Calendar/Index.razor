@@ -20,29 +20,29 @@
 @* Buttons*@
 <div class="mb-3 no-print">
     @* Weekly/Montly view buttons, and they reflect the current view mode*@
-    <button class="btn @(viewMode == "Week" ? "btn-primary" : "btn-outline-primary") me-2" @onclick='() => SetView("Week")'>Weekly View</button>
-    <button class="btn @(viewMode == "Month" ? "btn-primary" : "btn-outline-primary")" @onclick='() => SetView("Month")'>Monthly View</button>
+    <button class="@(viewMode == "Week" ? "meal-btn-active" : "meal-btn") me-2" @onclick='() => SetView("Week")'>Weekly View</button>
+    <button class="@(viewMode == "Month" ? "meal-btn-active" : "meal-btn")" @onclick='() => SetView("Month")'>Monthly View</button>
     @if (viewMode == "Week")
     {
-        <button class="btn @(weekLayout == "Grid" ? "btn-primary" : "btn-outline-primary") me-2" @onclick='() => weekLayout = "Grid"'>Grid Layout</button>
-        <button class="btn @(weekLayout == "List" ? "btn-primary" : "btn-outline-primary") me-2" @onclick='() => weekLayout = "List"'>List Layout</button>
+        <button class="@(weekLayout == "Grid" ? "meal-btn-active" : "meal-btn") me-2" @onclick='() => weekLayout = "Grid"'>Grid Layout</button>
+        <button class="@(weekLayout == "List" ? "meal-btn-active" : "meal-btn") me-2" @onclick='() => weekLayout = "List"'>List Layout</button>
     }
     
     @* print button*@
-    <button class="btn btn-outline-secondary" @onclick="PrintMealPlan">Print / Save PDF</button>
+    <button class="meal-btn-print" @onclick="PrintMealPlan">Print / Save PDF</button>
 </div>
 
 <div class="row mb-3 no-print">
     <div class="col-md-6">
         @if (viewMode == "Week")
         {
-            <button class="btn btn-secondary me-2" @onclick="PreviousWeek">Previous Week</button>
-            <button class="btn btn-secondary" @onclick="NextWeek">Next Week</button>
+            <button class="meal-btn-nav me-2" @onclick="PreviousWeek">&larr; Previous Week</button>
+            <button class="meal-btn-nav" @onclick="NextWeek">Next Week &rarr;</button>
         }
         else if (viewMode == "Month")
         {
-            <button class="btn btn-secondary me-2" @onclick="PreviousMonth">Previous Month</button>
-            <button class="btn btn-secondary" @onclick="NextMonth">Next Month</button>
+            <button class="meal-btn-nav me-2" @onclick="PreviousMonth">&larr; Previous Month</button>
+            <button class="meal-btn-nav" @onclick="NextMonth">Next Month &rarr;</button>
         }
     </div>
     <div class="col-md-6 text-end">
@@ -137,7 +137,7 @@
                                 }
                             </tr>
                         }
-                }
+                
                     </tbody>
                 </table>
             }

@@ -50,3 +50,25 @@
     background-color: var(--ms-deeprust);
     color: white;
 }
+
+.logout-button {
+    background: transparent;
+    border: none;
+    color: #fffaf4;
+    font-weight: 600;
+    padding: 0.55rem 0.9rem;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.logout-button:hover {
+    background-color: #e2a743;
+    color: #8a3b32;
+    transform: translateY(-1px);
+}
+
+.logout-button:focus {
+    outline: none;
+    box-shadow: none;
+}

@@ -58,8 +58,6 @@
         box-shadow: inset 0 0 0 1px rgba(255, 250, 244, 0.15);
     }
 
-
-    }
 </style>
 
 <nav class="mealsync-nav">
@@ -70,8 +68,22 @@
         <NavLink href="recipes">Recipes</NavLink>
         <NavLink href="calendar">Meal Planner</NavLink>
         <NavLink href="grocerylist">Grocery List</NavLink>
-        <NavLink href="Identity/Account/Login">Login</NavLink>
-        <NavLink href="Identity/Account/Register">Register</NavLink>
+
+        <AuthorizeView>
+            <Authorized>
+                <form method="post" action="Identity/Account/Logout" class="logout-form">
+                    <AntiforgeryToken />
+                    <input type="hidden" name="returnUrl" value="/" />
+                    <button type="submit" class="logout-button">Logout</button>
+                </form>
+            </Authorized>
+
+            <NotAuthorized>
+                <NavLink href="Identity/Account/Login">Login</NavLink>
+                <NavLink href="Identity/Account/Register">Register</NavLink>
+            </NotAuthorized>
+        </AuthorizeView>
+
     </div>
 </nav>
 
