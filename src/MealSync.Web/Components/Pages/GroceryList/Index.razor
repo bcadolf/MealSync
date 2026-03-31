@@ -2,8 +2,10 @@
 @using MealSync.Core.Entities
 @using MealSync.Core.Interfaces
 @inject IGroceryListService GroceryListService
+@inject IRecipeService RecipeService
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @using System.Security.Claims
+@using MealSync.Infrastructure.Services
 @using MealSync.Web.Components.Shared
 
 @attribute [Authorize]
@@ -50,11 +52,9 @@
 
                         @if (editMenuUI.visible)
                         {
-                            <EditMenu item="item" editMenuUI="editMenuUI" />
+                            <EditMenu item="item" OnSubmitCallback="@HandleEditItem" />
                         }
-
                     }
-                    
                 </ul>
             }
 
@@ -80,9 +80,9 @@
                     <option value="monthly">Monthly</option>
                 </select>
     
-                <form>
+                <EditForm Model="@addedGroceryItems" OnSubmit="AddNewItem">
                     <button type="button" class="btn btn-secondary btn-sm" @onclick="AddIngredient">Add New Ingredient</button>
-                    @foreach (var (item, index) in groceryListItems.Select((item, i) => (item, i)))
+                    @foreach (var (item, index) in addedGroceryItems.Select((item, i) => (item, i)))
                     {
                         <div class="d-flex flex-column mb-2 align-items-start">
                             <label>Ingredient Name
@@ -102,20 +102,26 @@
                         </div>
                     }
 
-                    @if (groceryListItems.Count > 0)
+                    @if (addedGroceryItems.Count > 0)
                     {
                         <div class="form-group">
-                            <button type="submit" @onclick="AddNewItem" class="btn btn-primary"
-                                    style="background-color: #824d47">Add to List</button>
+                            <button type="submit" class="btn btn-primary" style="background-color: #824d47">Add to List</button>
                         </div>
                     }
-                </form>
+                </EditForm>
                 <button class="btn btn-primary" @onclick="PrintList">Save as PDF</button>
 
             </div>
             <div class="d-flex flex-column justify-center w-25">
                 <h1 class="text-center">Recipes</h1>
-                <p>Choose from your recipes and add it to your grocery list.</p>
+                <p>Your current recipes.</p>
+
+                @foreach (Recipe recipe in recipes)
+                {
+                    <RecipeCard Recipe="recipe" OnViewDetails="HandleRecipeDetails" CssView="pb-2"
+                                IsFullView="@(FullRecipeId == recipe.RecipeId)" />
+                    //copied code from Recipes index.razor
+                }
             </div>
 
 
@@ -127,12 +133,37 @@
     private string? userId;
     private List<GroceryListItem> groceryListItems = new List<GroceryListItem>();
 
+    private List<GroceryListItem> addedGroceryItems = new();
+
     private List<EditMenuUI> editMenuUIs = new();
 
     private List<(GroceryListItem groceryList, EditMenuUI editMenuUI)> ListAndMenu = new();
 
+    private List<Recipe> recipes = new();
 
-    public async Task OnDateSelected(ChangeEventArgs args)
+    private int? FullRecipeId; //copied code from Recipes index.razor
+
+    public async Task HandleEditItem(GroceryListItem item)
+    {
+        await GroceryListService.UpdateGroceryIngredientAsync(item);
+    }
+
+    public void HandleRecipeDetails(Recipe recipe)
+    //copied code from Recipes index.razor
+    {
+        if (FullRecipeId == recipe.RecipeId)
+        {
+            FullRecipeId = null;
+        }
+        else
+        {
+            FullRecipeId = recipe.RecipeId;
+        }
+
+    }
+
+
+    private async Task OnDateSelected(ChangeEventArgs args)
     {
         if (args.Value?.ToString() == "")
         {
@@ -145,7 +176,7 @@
         }
     }
 
-    public void ShowEditItem(EditMenuUI editMenuUI)
+    private void ShowEditItem(EditMenuUI editMenuUI)
     {
         if (!editMenuUI.visible)
         {
@@ -156,18 +187,17 @@
             editMenuUI.visible = false;
         }
     }
-    
-    private void RemoveIngredient(int index)
-    {
-        if (index >= 0 && index < groceryListItems.Count)
-        {
-            groceryListItems.RemoveAt(index);
-        }
-    }
-
     private void AddIngredient()
     {
-        groceryListItems.Add(new GroceryListItem { Ingredient = new Ingredient() }); //creates a new ingredient and adds it to
+        addedGroceryItems.Add(new GroceryListItem { Ingredient = new Ingredient() }); //creates a new ingredient and adds it to
+    }
+
+    private void RemoveIngredient(int index)
+    {
+        if (index >= 0 && index < addedGroceryItems.Count)
+        {
+            addedGroceryItems.RemoveAt(index);
+        }
     }
 
     protected override async Task OnInitializedAsync()
@@ -178,6 +208,7 @@
         if (!string.IsNullOrEmpty(userId))
         {
             groceryList = await GroceryListService.GetLatestGroceryListAsync(userId);
+            recipes = await RecipeService.GetAllRecipesAsync();
 
             //create a menu editor for each grocery list
             if (groceryList?.Items != null)
@@ -215,18 +246,22 @@
         groceryList = await GroceryListService.GenerateGroceryListAsync(start, end, userId);
     }
 
-    public async Task AddNewItem()
+    private async Task AddNewItem()
     {
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        var userId = authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-        var filteredGroceryListItems = groceryListItems
-        .Where(item => !string.IsNullOrWhiteSpace(item.Ingredient?.Name))
-        .ToList();
+        var filteredAddedItems = addedGroceryItems
+                .Where(item => !string.IsNullOrWhiteSpace(item.Ingredient?.Name))
+                .ToList();
 
         if (groceryList != null)
         {
-            await GroceryListService.AddGroceryIngredientAsync(filteredGroceryListItems, groceryList, userId);
+            groceryListItems = await GroceryListService.AddGroceryIngredientAsync(filteredAddedItems, groceryList, userId);
+
+            foreach (GroceryListItem item in groceryListItems)
+            {
+                ListAndMenu.Add((item, new EditMenuUI()));
+            }
+            addedGroceryItems.Clear();
+            return;
         }
     }
 

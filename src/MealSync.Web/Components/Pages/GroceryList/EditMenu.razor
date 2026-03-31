@@ -4,28 +4,28 @@
 @inject IGroceryListService GroceryListService
 
 
-@if (editMenuUI.visible)
+@if (item != null)
 {
-    <div class="edit-item">
+    <EditForm Model="@item" class="edit-item">
         <InputText class="form-control" placeholder="Ingredient Name" @bind-Value="item.Ingredient!.Name" />
         <InputNumber class="form-control" placeholder="Qty" @bind-Value="item.Quantity" />
         <InputText class="form-control" placeholder="Unit" @bind-Value="item.Unit" />
-        <button class="edit-btn btn btn-primary" type="submit" @onclick="() => HandleEditItem(item)">Edit
+        <button class="edit-btn btn btn-primary" type="submit" @onclick="() => HandleSubmit(item)">Edit
             Item</button>
-        </div>
+        </EditForm>
+
     }
 
 @code {
+    [Parameter]
+    public GroceryListItem? item { get; set; }
 
     [Parameter]
-    public GroceryListItem item { get; set; }
+    public EventCallback<GroceryListItem> OnSubmitCallback { get; set; }
 
-    [Parameter]
-    public EditMenuUI editMenuUI { get; set; }
-
-
-    public async Task HandleEditItem(GroceryListItem item)
+    public async Task HandleSubmit(GroceryListItem item)
     {
-        await GroceryListService.UpdateGroceryIngredientAsync(item);
+        await OnSubmitCallback.InvokeAsync(item);
     }
+    
 }
