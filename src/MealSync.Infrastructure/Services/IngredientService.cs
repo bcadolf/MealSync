@@ -17,6 +17,7 @@ namespace MealSync.Infrastructure.Services
     public async Task<List<Ingredient>> SearchAsync(string query)
     {
         return await _context.Ingredients
+            .AsNoTracking()
             .Where(i => i.Name.Contains(query))
             .OrderBy(i => i.Name)
             .Take(20)

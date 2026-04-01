@@ -20,6 +20,9 @@ namespace MealSync.Infrastructure.Services
 
         public async Task<List<MealPlan>> GetMealPlansAsync(DateTime start, DateTime end, string? userId = null)
         {
+            start = DateTime.SpecifyKind(start, DateTimeKind.Utc);
+            end = DateTime.SpecifyKind(end, DateTimeKind.Utc);
+            
             var query = _context.MealPlans
                 .Include(mp => mp.Recipe)
                 .Where(mp => mp.Date >= start && mp.Date <= end);

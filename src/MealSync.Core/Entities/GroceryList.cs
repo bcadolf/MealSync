@@ -9,7 +9,9 @@ namespace MealSync.Core.Entities
     {
         [Key]
         public int ListId { get; set; }
-        public DateTime CreatedAt { get; set; }
+        public DateTime CreatedAt { get => _date;
+            set => _date = DateTime.SpecifyKind(value, DateTimeKind.Utc); }
+        private DateTime _date;
         public bool IsCompleted { get; set; }
 
         public string? UserId { get; set; }

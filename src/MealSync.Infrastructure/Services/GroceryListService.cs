@@ -16,6 +16,9 @@ namespace MealSync.Infrastructure.Services
 
         public async Task<GroceryList> GenerateGroceryListAsync(DateTime start, DateTime end, string? userId = null)
         {
+            start = DateTime.SpecifyKind(start, DateTimeKind.Utc);
+            end = DateTime.SpecifyKind(end, DateTimeKind.Utc);
+
             var mealPlansQuery = _context.MealPlans
                 .Include(mp => mp.Recipe)
                 .ThenInclude(r => r!.RecipeIngredients)

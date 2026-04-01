@@ -13,7 +13,7 @@ MealSync is a comprehensive, web-based meal planning application designed to str
 
 - **Frontend:** Blazor Interactive Server
 - **Backend:** ASP.NET Core 8+
-- **Database:** SQLite
+- **Database:** PostgreSQL Neon
 - **ORM:** Entity Framework Core
 - **Authentication:** ASP.NET Core Identity
 
@@ -22,43 +22,38 @@ MealSync is a comprehensive, web-based meal planning application designed to str
 Follow these steps to run the application locally on your machine.
 
 ### Prerequisites
+
 - [.NET 8.0 SDK](https://dotnet.microsoft.com/download) (or later)
 
 ### Instructions
 
 1. **Clone the repository:**
+
    ```bash
    git clone <repository-url>
    cd src
    cd MealSync.web
    ```
 
-2. **Apply Database Migrations:**
-   The project uses SQLite and Entity Framework Core. To create the database and apply the initial schema, run:
-   ```bash
-   
-   dotnet ef database update
-   ```
-  If you get an error about "The Entity Framework tools version '10.0.3' is older than that of the runtime '10.0.5'. " Please enter the following 
-  
-  dotnet ef database update --context MealSync.Infrastructure.Data.MealSyncDbContext
-
-3. **Run the Application:**
+2. **Run the Application:**
    Start the Blazor web server:
+
    ```bash
    dotnet watch
    ```
 
-4. **View the App:**
+3. **View the App:**
    Open your web browser and navigate to `http://localhost:5027` (or the URL specified in the console output).
 
 ## Team Members
+
 - Tanya Trampp
 - Brandon Adolf
 - Manuel Zamalloa
 - MF Dube
-  
+
 ### Favorite Quotes
+
 --Tanya's choice--
 "Mistakes are a fact of life. It is the response to the error that counts." -- Nikki Ciovanni
 
