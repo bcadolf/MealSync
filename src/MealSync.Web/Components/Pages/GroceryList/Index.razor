@@ -208,7 +208,7 @@
         if (!string.IsNullOrEmpty(userId))
         {
             groceryList = await GroceryListService.GetLatestGroceryListAsync(userId);
-            recipes = await RecipeService.GetAllRecipesAsync();
+            recipes = await RecipeService.GetAllRecipesAsync(userId);
 
             //create a menu editor for each grocery list
             if (groceryList?.Items != null)
