@@ -9,7 +9,7 @@
            style="cursor: text;"
            placeholder="Search ingredients..."
            value="@SearchText"
-           @oninput="@(async (ChangeEventArgs e) => await OnSearchChanged(e.Value?.ToString()))" />
+           @oninput="OnInputChanged" />
     
     @if (FilteredIngredients.Any())
     {
@@ -36,6 +36,11 @@
     private List<Ingredient> FilteredIngredients { get; set; } = new();
     private string? SearchText { get; set; }
 
+    private CancellationTokenSource? _cts;
+    private System.Timers.Timer? _debounceTimer;
+
+   
+
     protected override void OnParametersSet()
     {
         if (SearchText == null && Value != null)
@@ -45,19 +50,40 @@
     }
 
 
-    private async Task OnSearchChanged(string? ingredientName) {
-        SearchText = ingredientName;
-        Value = ingredientName;
+    private void OnInputChanged(ChangeEventArgs e)
+    {
+        SearchText = e.Value?.ToString();
+        Value = SearchText;
 
-        await ValueChanged.InvokeAsync(Value);
+        _ = ValueChanged.InvokeAsync(Value);
 
-        if (string.IsNullOrWhiteSpace(ingredientName)) {
-            FilteredIngredients.Clear();
-            return;
-        }
-
-        FilteredIngredients = await IngredientService.SearchAsync(ingredientName);
+        _debounceTimer?.Stop();
+        _debounceTimer = new System.Timers.Timer(300);
+        _debounceTimer.Elapsed += async (_, __) =>
+        {
+            _debounceTimer?.Stop();
+            await InvokeAsync(() => PerformSearchAsync(SearchText));
+        };
+        _debounceTimer.Start();
     }
+
+    private async Task PerformSearchAsync(string? ingredientName)
+{
+    _cts?.Cancel();
+    _cts = new CancellationTokenSource();
+
+    if (string.IsNullOrWhiteSpace(ingredientName))
+    {
+        FilteredIngredients.Clear();
+        await InvokeAsync(StateHasChanged);
+        return;
+    }
+    
+    FilteredIngredients = await IngredientService.SearchAsync(ingredientName);
+    
+    await InvokeAsync(StateHasChanged);
+}
+
 
     private async Task SelectedIngredient(string ingredientName) {
         SearchText = ingredientName;
