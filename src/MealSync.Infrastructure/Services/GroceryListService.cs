@@ -132,5 +132,17 @@ namespace MealSync.Infrastructure.Services
             await _context.SaveChangesAsync();
             return groceryListItem;
         }
+
+        public async Task RemoveGroceryIngredientAsync(GroceryListItem groceryListItem)
+        {
+            var item = await _context.GroceryListItems.FindAsync(groceryListItem.ListItemId);
+
+            if (item != null)
+            {
+                _context.GroceryListItems.Remove(item);
+                await _context.SaveChangesAsync();
+            }
+        }
+        
     }
 }

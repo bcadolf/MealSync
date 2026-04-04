@@ -1,22 +1,36 @@
 @using MealSync.Core.Entities
 @using MealSync.Core.Interfaces
 @using Microsoft.EntityFrameworkCore.Query
+
 @inject IGroceryListService GroceryListService
 
 
 @if (item != null)
 {
-    <EditForm Model="@item" class="edit-item">
-        <InputText class="form-control" placeholder="Ingredient Name" @bind-Value="item.Ingredient!.Name" />
-        <InputNumber class="form-control" placeholder="Qty" @bind-Value="item.Quantity" />
-        <InputText class="form-control" placeholder="Unit" @bind-Value="item.Unit" />
-        <button class="edit-btn btn btn-primary" type="submit" @onclick="() => HandleSubmit(item)">Edit
-            Item</button>
-        </EditForm>
+    <div class="position-absolute icons">
+        <span><i @onclick="() => ToggleEditMenu()" id="edit-item" class="fa-solid fa-pen-to-square"></i></span>
+        <span><i @onclick="() => RemoveListItem(item)" id="remove-item" class="fa-solid fa-x"></i></span>
+    </div>
+
+    if (showForm != false)
+    {
+        <EditForm Model="@item" class="edit-item d-flex flex-row pt-2">
+            <InputText class="form-control w-25 me-1" placeholder="Ingredient Name" @bind-Value="item.Ingredient!.Name" />
+            <InputNumber class="form-control w-25 me-1" placeholder="Qty" @bind-Value="item.Quantity" />
+            <InputText class="form-control w-25 me-1" placeholder="Unit" @bind-Value="item.Unit" />
+            <button class="edit-btn btn btn-primary" type="submit" @onclick="() => HandleSubmit(item)">Edit
+                Item</button>
+            </EditForm>
+        }
 
     }
 
 @code {
+    private bool showForm = false;
+
+    [Parameter]
+    public GroceryList groceryList { get; set; } = new();
+
     [Parameter]
     public GroceryListItem? item { get; set; }
 
@@ -27,5 +41,16 @@
     {
         await OnSubmitCallback.InvokeAsync(item);
     }
-    
+
+    public async Task ToggleEditMenu()
+    {
+        showForm = !showForm;
+    }
+
+    public async Task RemoveListItem(GroceryListItem item)
+    {
+        await GroceryListService.RemoveGroceryIngredientAsync(item);
+
+    }
+
 }

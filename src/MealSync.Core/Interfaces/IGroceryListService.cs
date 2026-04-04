@@ -12,5 +12,6 @@ namespace MealSync.Core.Interfaces
 
         Task<GroceryListItem> UpdateGroceryIngredientAsync(GroceryListItem groceryListItem);
         Task ToggleItemCheckedAsync(int listItemId);
+        Task RemoveGroceryIngredientAsync(GroceryListItem groceryListItem);
     }
 }

@@ -11,3 +11,21 @@
 .btn-primary:active {
   background-color: #8a3b32;
 }
+
+::deep .edit-item > input {
+  display: inline-block;
+  width: 90px;
+  height: 20px;
+  border-radius: 8px;
+  border: 1px solid #c8c8c8;
+  margin: 8px 10px 10px 0;
+}
+
+::deep .edit-item > input:active {
+  border: none;
+}
+
+.icons {
+  top: 6.5px;
+  right: 10px;
+}

@@ -37,17 +37,6 @@ InputCheckbox[type="checkbox"] {
   height: 20px;
 }
 
-::deep .edit-item > input {
-  display: inline-block;
-  width: 90px;
-  border-radius: 8px;
-  border: 1px solid #c8c8c8;
-  margin: 8px 10px 10px 0;
-}
-
-::deep .edit-item > input:active {
-  border: none;
-}
 
 ::deep .btn {
   border-radius: 8px;
