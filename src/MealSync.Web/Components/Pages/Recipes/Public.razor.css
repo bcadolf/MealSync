@@ -1,0 +1,12 @@
+.custom-green-btn {
+    background-color: #376c3d;
+    color: #fffaf4;
+    border: none;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.custom-green-btn:hover {
+    background-color: #e2a743;
+    transform: translateY(-1px);
+}

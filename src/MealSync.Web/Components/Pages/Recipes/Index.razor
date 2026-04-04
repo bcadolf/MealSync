@@ -13,6 +13,7 @@
 
 <p>
     <a class="btn" href="/recipes/create">Create New Recipe</a>
+    <a class="btn btn-outline-secondary ms-2" href="/public-recipes">Browse Public Recipes</a>
     <button title="Toggle View" class="btn btn-secondary" @onclick="TogglePageView">
         @ToggleIcon
 </button>
@@ -28,9 +29,11 @@ else if (recipes.Count == 0)
 }
 else
 {
-    <div class="@PageView ">
+    <div class="row">
         @foreach (var recipe in recipes) {
-            <RecipeCard CssView="@CssView" IsFullView="@(FullRecipeId == recipe.RecipeId)" Recipe="recipe" OnViewDetails="HandleViewDetails" />
+            <div class="@(CssView == "grid-card" ? "col-md-4 mb-3" : "col-12 mb-3")">
+                <RecipeCard CssView="@CssView" IsFullView="@(FullRecipeId == recipe.RecipeId)" Recipe="recipe" OnViewDetails="HandleViewDetails" />
+            </div>
         }
     </div>
 
@@ -39,8 +42,8 @@ else
 @code {
     private List<Recipe>? recipes;
     private string CssView = "list-card";
-    private string PageView = "list";
-    private string ToggleIcon = "Grid ☷";
+
+    private string ToggleIcon = "Show Grid ☷";
     private int? FullRecipeId;
 
     protected override async Task OnInitializedAsync()
@@ -60,14 +63,12 @@ else
     }
 
     private void TogglePageView() {
-        if(PageView == "list") {
-            PageView = "grid";
+        if(CssView == "list-card") {
             CssView = "grid-card";
-            ToggleIcon = "List ☰";
+            ToggleIcon = "Show List ☰";
         }else {
-            PageView = "list";
             CssView = "list-card";
-            ToggleIcon = "Grid ☷";
+            ToggleIcon = "Show Grid ☷";
         }
     }
 

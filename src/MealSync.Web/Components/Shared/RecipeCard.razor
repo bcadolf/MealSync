@@ -27,7 +27,7 @@
             </h4>
             <ul>
                 @foreach (var ingredient in Recipe.RecipeIngredients) {
-                    <li>@ingredient.Ingredient.Name - @ingredient.Quantity @ingredient.Unit</li>
+                    <li>@ingredient.Ingredient?.Name - @ingredient.Quantity @ingredient.Unit</li>
                 }
             </ul>
             <h4>
@@ -44,11 +44,11 @@
 
 @code {
     [Parameter] 
-    public Recipe Recipe { get; set; }
+    public Recipe Recipe { get; set; } = default!;
     [Parameter]
     public EventCallback<Recipe> OnViewDetails { get; set; }
     [Parameter]
-    public string CssView { get; set; }
+    public string CssView { get; set; } = string.Empty;
     [Parameter]
     public bool IsFullView { get; set; }
 
