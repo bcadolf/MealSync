@@ -16,10 +16,22 @@
 
 .grid-card {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  justify-content: center;
-  width: 150px;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 120px;
+  padding: 1rem;
+}
+
+.grid-card h3,
+.list-card h3 {
+  margin: 0;
+}
+
+.grid-card p,
+.list-card p {
+  margin: 0 0.25rem;
 }
 
 .show-full {

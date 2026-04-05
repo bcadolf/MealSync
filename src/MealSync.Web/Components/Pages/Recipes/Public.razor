@@ -1,0 +1,113 @@
+@page "/public-recipes"
+@using MealSync.Core.Entities
+@using MealSync.Core.Interfaces
+@using MealSync.Web.Components.Shared
+@using Microsoft.AspNetCore.Components
+@inject IRecipeService RecipeService
+@inject AuthenticationStateProvider AuthStateProvider
+
+<h3>Public Recipes</h3>
+
+<input type="text" class="form-control mb-3" placeholder="Search recipes..."
+    value="@searchTerm"
+    @oninput="HandleSearchInput"/>
+
+@if (!string.IsNullOrEmpty(successMessage))
+{
+    <div class='alert @(isDuplicate ? "alert-warning" : "alert-success") text-center'>@successMessage</div>
+}
+
+@if (!recipes.Any())
+{
+    <p>No matching recipes found.</p>
+}
+else
+ {
+    <div class="row">
+        @foreach (var recipe in recipes)
+        {
+            <div class="col-md-4 mb-3 text-center">
+                <RecipeCard CssView="list-card"
+                IsFullView="@(FullRecipeId == recipe.RecipeId)"
+                Recipe="recipe"
+                OnViewDetails="HandleViewDetails"/>
+
+                <button class="btn custom-green-btn mt-0 px-4"
+                    @onclick="() => CopyRecipe(recipe)"> Copy to My Recipes
+                </button>
+            </div>
+        }
+    </div>
+ }
+
+ @code {
+    private List<Recipe> recipes = new();
+    private string searchTerm = "";
+    private string successMessage = "";
+    private bool isDuplicate = false;
+    private int? FullRecipeId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadRecipes();
+    }
+
+    private async Task LoadRecipes()
+    {
+        recipes = await RecipeService.GetPublicRecipesAsync();
+    }
+
+    private async Task HandleSearchInput(ChangeEventArgs e)
+    {
+        searchTerm = e.Value?.ToString() ?? "";
+        await OnSearchChanged();
+    }
+
+    private void HandleViewDetails(Recipe recipe)
+    {
+        if (FullRecipeId == recipe.RecipeId)
+        {
+            FullRecipeId = null;
+        }
+        else
+        {
+            FullRecipeId = recipe.RecipeId;
+        }
+    }
+
+    private async Task OnSearchChanged()
+    { 
+        recipes = await RecipeService.SearchPublicRecipesAsync(searchTerm);
+    }
+
+    private async Task CopyRecipe(Recipe recipe)
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        var userId = user?.FindFirst(c => c.Type.Contains("nameidentifier"))?.Value;
+
+        if (!string.IsNullOrEmpty(userId))
+        {
+            var success = await RecipeService.CopyPublicRecipeToUserAsync(recipe.RecipeId, userId);
+
+            if (success)
+            {
+                isDuplicate = false;
+                successMessage = $"\"{recipe.Title}\" has been added to your collection!";
+            }
+            else{
+                isDuplicate = true;
+                successMessage = $"You already have \"{recipe.Title}\" in your recipes.";
+            }
+
+                _ = Task.Run(async () =>
+                {
+                    await Task.Delay(3000);
+                    successMessage = "";
+                    isDuplicate = false;
+                    await InvokeAsync(StateHasChanged);
+                });
+        }
+    }
+ }

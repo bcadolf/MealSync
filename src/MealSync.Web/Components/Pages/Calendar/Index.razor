@@ -9,6 +9,7 @@
 @using Microsoft.EntityFrameworkCore.Metadata.Internal
 @using Microsoft.JSInterop
 @using System.Runtime.CompilerServices
+@using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.View
 @inject IJSRuntime JS
 
 @attribute [Authorize]
@@ -20,12 +21,13 @@
 @* Buttons*@
 <div class="mb-3 no-print">
     @* Weekly/Montly view buttons, and they reflect the current view mode*@
-    <button class="@(viewMode == "Week" ? "meal-btn-active" : "meal-btn") me-2" @onclick='() => SetView("Week")'>Weekly View</button>
-    <button class="@(viewMode == "Month" ? "meal-btn-active" : "meal-btn")" @onclick='() => SetView("Month")'>Monthly View</button>
+    <button class="meal-btn me-2" @onclick="ToggleViewMode">@(viewMode == "Week" ? "Show Month" : "Show Week")</button>
+
     @if (viewMode == "Week")
     {
-        <button class="@(weekLayout == "Grid" ? "meal-btn-active" : "meal-btn") me-2" @onclick='() => weekLayout = "Grid"'>Grid Layout</button>
-        <button class="@(weekLayout == "List" ? "meal-btn-active" : "meal-btn") me-2" @onclick='() => weekLayout = "List"'>List Layout</button>
+        <button class="meal-btn me-2" @onclick="ToggleWeekLayout">
+            @(weekLayout == "Grid" ? "Show List ☰" : "Show Grid ☰")
+        </button>
     }
     
     @* print button*@
@@ -359,6 +361,7 @@
         }
     }
 
+
     private async Task OnDrop(DateTime day, string mealType)
     {
         if (draggedRecipe == null || string.IsNullOrEmpty(userId))
@@ -374,6 +377,17 @@
 
         await MealPlanService.AddRecipeToPlanAsync(plan);
         draggedRecipe = null;
+        await LoadMealPlansAsync();
+    }
+
+    private void ToggleWeekLayout()
+    {
+        weekLayout = weekLayout == "Grid" ? "List" : "Grid";
+    }
+
+    private async Task ToggleViewMode()
+    {
+        viewMode = viewMode == "Week" ? "Month" : "Week";
         await LoadMealPlansAsync();
     }
 

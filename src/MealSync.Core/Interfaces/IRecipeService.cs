@@ -11,5 +11,9 @@ namespace MealSync.Core.Interfaces
         Task<Recipe> CreateRecipeAsync(Recipe recipe);
         Task UpdateRecipeAsync(Recipe recipe);
         Task DeleteRecipeAsync(int id);
+
+        Task<List<Recipe>> GetPublicRecipesAsync();
+        Task<List<Recipe>> SearchPublicRecipesAsync(string? searchTerm);
+        Task<bool> CopyPublicRecipeToUserAsync(int recipeId, string userId);
     }
 }
