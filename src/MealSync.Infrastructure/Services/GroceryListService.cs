@@ -143,6 +143,29 @@ namespace MealSync.Infrastructure.Services
                 await _context.SaveChangesAsync();
             }
         }
-        
+
+        public async Task RemoveAllGroceryItemsAsync(string userId, GroceryList groceryList)
+        {
+            foreach (var gi in groceryList.Items)
+            {
+                var item = await _context.GroceryListItems.FindAsync(gi.ListItemId);
+                if (item != null)
+                {
+                    _context.GroceryListItems.Remove(item);
+                }
+            }
+
+            await _context.SaveChangesAsync();
+
+            // var gl = await _context.GroceryLists.FirstOrDefaultAsync(gl => gl.UserId == userId);
+
+            // if (gl != null)
+            // {
+            //     _context.GroceryLists.Remove(gl);
+            //     await _context.SaveChangesAsync();
+            // }
+
+        }
+
     }
 }

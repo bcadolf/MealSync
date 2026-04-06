@@ -68,6 +68,7 @@
                 <option value="weekly">Weekly</option>
                 <option value="biweekly">Biweekly</option>
                 <option value="monthly">Monthly</option>
+                <option value="quarterly">Quarterly</option>
             </select>
     
             <EditForm Model="@addedGroceryItems" OnSubmit="AddNewItem">
@@ -100,6 +101,8 @@
                 }
             </EditForm>
             <button class="btn btn-primary" @onclick="PrintList">Save as PDF</button>
+            <button class="btn btn-primary" @onclick="ClearGroceryList">Clear All</button>
+
 
         </div>
         <div class="d-flex flex-column justify-center w-25">
@@ -141,26 +144,11 @@
         {
             groceryList?.Items.Remove(item);
         }
-
     }
 
     public async Task HandleEditItem(GroceryListItem item)
     {
         await GroceryListService.UpdateGroceryIngredientAsync(item);
-    }
-
-    public void HandleRecipeDetails(Recipe recipe)
-    //copied code from Recipes index.razor
-    {
-        if (FullRecipeId == recipe.RecipeId)
-        {
-            FullRecipeId = null;
-        }
-        else
-        {
-            FullRecipeId = recipe.RecipeId;
-        }
-
     }
 
     private async Task OnDateSelected(ChangeEventArgs args)
@@ -188,6 +176,15 @@
         }
     }
 
+    public async Task ClearGroceryList()
+    {
+        if (userId != null && groceryList != null)
+        {
+            await GroceryListService.RemoveAllGroceryItemsAsync(userId, groceryList);
+        }
+        groceryList?.Items.Clear();
+    }
+
     protected override async Task OnInitializedAsync()
     {
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
@@ -198,7 +195,6 @@
             groceryList = await GroceryListService.GetLatestGroceryListAsync(userId);
             recipes = await RecipeService.GetAllRecipesAsync(userId);
         }
-        
     }
 
     private async Task GenerateList(string? selectedDate)
@@ -220,6 +216,10 @@
         else if (selectedDate == "monthly")
         {
             end = start.AddDays(30);
+        }
+        else if (selectedDate == "quarterly")
+        {
+            end = start.AddDays(90);
         }
 
         groceryList = await GroceryListService.GenerateGroceryListAsync(start, end, userId);
@@ -249,6 +249,18 @@
     public async Task PrintList()
     {
         await JS.InvokeVoidAsync("window.print");
+    }
+
+    public void HandleRecipeDetails(Recipe recipe) //copied code from Recipes index.razor
+    {
+        if (FullRecipeId == recipe.RecipeId)
+        {
+            FullRecipeId = null;
+        }
+        else
+        {
+            FullRecipeId = recipe.RecipeId;
+        }
     }
 
 }
