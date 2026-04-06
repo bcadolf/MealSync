@@ -7,6 +7,7 @@
 @using System.Security.Claims
 @using MealSync.Infrastructure.Services
 @using MealSync.Web.Components.Shared
+@using NuGet.Protocol.Core.Types
 
 @attribute [Authorize]
 @inject IJSRuntime JS
@@ -15,8 +16,8 @@
 
 <PageTitle>Grocery List</PageTitle>
 
-<div class="container d-flex flex-wrap gap-4">
-    <div id="printArea">
+<div class="container-fluid d-flex flex-wrap gap-4">
+    <div id="printArea" class="grocery-list">
         <h1 class="mb-3">Grocery List</h1>
         @if (groceryList != null && groceryList.Items.Any())
         {
@@ -45,12 +46,17 @@
 
         else if (groceryList != null)
         {
-            <div class="alert alert-info">Your grocery list is empty. Add meals to your calendar first!</div>
+            <div class="alert alert-info">Your grocery list is empty. Add meals to your calendar first!
+                <br>
+                If meals were added to calendar generate a new list.
+            </div>
         }
 
         @if (groceryList == null)
         {
-            <div class="alert alert-info">Your grocery list is empty. Add meals to your calendar first!</div>
+            <div class="alert alert-info">Your grocery list is empty. Add meals to your calendar first! <br>
+                If meals were added to your calendar generate a new list.
+            </div>
         }
 
         @if (groceryList != null)
@@ -60,10 +66,11 @@
             }
         </div>
 
-        <div class="mt-5 mb-3 d-flex justify-content-start flex-column w-25">
+        <div class="mt-5 mb-3 d-flex flex-column me-auto">
 
             <label for="date-select"><b>Generate grocery list by range</b></label>
-            <select class="w-100" name="date select" id="date-select" @onchange="@OnDateSelected">
+            <select class="w-100 @openSelection" @onclick="AnimateSelection" name="date select" id="date-select"
+                    @onchange="@OnDateSelected">
                 <option value="">Select a date range to generate</option>
                 <option value="weekly">Weekly</option>
                 <option value="biweekly">Biweekly</option>
@@ -105,7 +112,7 @@
 
 
         </div>
-        <div class="d-flex flex-column justify-center w-25">
+        <div class="d-flex flex-column ms-auto">
             <h1 class="text-center">Recipes</h1>
 
             @if (!recipes.Any())
@@ -115,7 +122,7 @@
 
             @foreach (Recipe recipe in recipes)
             {
-                <RecipeCard Recipe="recipe" OnViewDetails="HandleRecipeDetails" CssView="pb-2"
+                <RecipeCard Recipe="recipe" OnViewDetails="HandleRecipeDetails" CssView="pb-2 recipe-card order-0"
                             IsFullView="@(FullRecipeId == recipe.RecipeId)" />
                 //copied code from Recipes index.razor
             }
@@ -135,6 +142,20 @@
     private List<Recipe> recipes = new();
 
     private int? FullRecipeId; //copied code from Recipes index.razor
+    private string openSelection = "is-closed";
+
+    private void AnimateSelection()
+    {
+        if (openSelection == "is-closed")
+        {
+            openSelection = "is-open";
+        }
+        else
+        {
+            openSelection = "is-closed";
+        }
+
+    }
 
     private void RemoveListItem(int id)
     {

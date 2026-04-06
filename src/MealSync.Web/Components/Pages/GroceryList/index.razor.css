@@ -24,19 +24,53 @@
 }
 
 /* grocery list  */
+
+.grocery-list {
+  max-width: 500px;
+  width: 100%;
+}
+
 .list-group {
   padding: 1.5rem 1rem;
-  width: 500px;
+  max-width: 500px;
+  min-width: 300px;
+  width: 100%;
   min-height: 600px;
   box-shadow: 5px 5px 20px #c8c8c8;
   list-style-type: none;
+}
+
+.list-group-item:hover {
+  background-color: rgba(180, 236, 131, 0.5);
+  transform: translateX(-5px);
+  scale: 1.02;
+  transition: scale 1s ease-in;
+  animation: shake-item 1s ease-in-out;
+}
+
+@keyframes shake-item {
+  0% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  50% {
+    scale: 1.02;
+  }
+  75% {
+    transform: translateX(-5px);
+  }
+  100% {
+    transform: translateX(-5px);
+    scale: 1.02;
+  }
 }
 
 InputCheckbox[type="checkbox"] {
   width: 20px;
   height: 20px;
 }
-
 
 ::deep .btn {
   border-radius: 8px;
@@ -77,7 +111,12 @@ select,
 }
 
 select {
-  background: #eadbb7;
+  background: linear-gradient(
+    120deg,
+    rgba(34, 139, 34, 0.3) 0%,
+    rgba(34, 159, 70, 0.606) 50%,
+    rgba(37, 204, 118, 0.9) 100%
+  );
   border: 2px solid #eadbb7;
   border-radius: 8px;
   margin-bottom: 1rem;
@@ -87,21 +126,42 @@ select::picker-icon {
   color: #c46a3b;
 }
 
+/* dropdown menu */
 ::picker(select) {
   border: none;
   border-radius: 8px;
   margin-top: 5px;
+  transition: all 0.5s;
 }
 
 option {
   padding: 1rem;
   background: #8a3b32;
+  opacity: 0;
+  transform: translateY(-50px);
   color: white;
+  z-index: -4;
+  transition:
+    opacity 1s ease-in,
+    transform 0.5s ease-in;
+}
+
+select:open option {
+  opacity: 1;
+  transform: translateY(0px);
+}
+
+@starting-style {
+  select:open option {
+    opacity: 0;
+    transform: translateY(-50px);
+  }
 }
 
 option:hover,
 option:focus {
   background: #784842;
+  transition: all 0.5s;
 }
 
 option:first-of-type {
