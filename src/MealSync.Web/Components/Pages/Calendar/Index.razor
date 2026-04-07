@@ -59,249 +59,252 @@
     </div>
 </div>
 
-<div class="meal-planner-layout">
-    <div class="recipe-panel no-print">
-        <h4>Available Recipes</h4>
+<div id="print-cont">
+    <div class="meal-planner-layout">
+        <div class="recipe-panel no-print">
+            <h4>Available Recipes</h4>
 
-        @foreach (var recipe in availableRecipes)
-        {
-            <div class="recipe-item-card"
-                draggable="true"
-                @ondragstart="() => OnDragStart(recipe)"
-                @ondragend="OnDragEnd">
-                <strong>@recipe.Title</strong>
-            </div>
-        }
-    </div>
-
-    <div class="calendar-panel">
-
-
-        @if (viewMode == "Week")
-        {
-            @if (weekLayout == "Grid")
+            @foreach (var recipe in availableRecipes)
             {
-                @* Weekly view *@
-                <table class="table table-bordered text-center">
-                    <thead>
-                        <tr>
-                            <th>Meal / Day</th>
-                            @for (int i = 0; i < 7; i++)
-                            {
-                                var day = currentWeekStart.AddDays(i);
-                                <th>
-                                    <div>@day.ToString("dddd")</div>
-                                    <small class="text-muted">@day.ToShortDateString()</small>
-                                </th>
-                            }
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var mealType in mealTypes)
-                        {
+                <div class="recipe-item-card"
+                    draggable="true"
+                    @ondragstart="() => OnDragStart(recipe)"
+                    @ondragend="OnDragEnd">
+                    <strong>@recipe.Title</strong>
+                </div>
+            }
+        </div>
+
+
+        <div class="calendar-panel">
+
+
+            @if (viewMode == "Week")
+            {
+                @if (weekLayout == "Grid")
+                {
+                    @* Weekly view *@
+                    <table class="table table-bordered text-center">
+                        <thead>
                             <tr>
-                                <td class="align-middle fw-bold">@mealType</td>
+                                <th>Meal / Day</th>
                                 @for (int i = 0; i < 7; i++)
                                 {
                                     var day = currentWeekStart.AddDays(i);
-                                    var dayMeals = mealPlans.Where(mp => mp.Date.Date == day.Date && mp.MealType == mealType).ToList();
-                                    <td class="meal-cell" @ondragover:preventDefault
-                                        @ondrop="() => OnDrop(day, mealType)">
-                                        <div class="meal-slot">
-                                            @if (dayMeals.Any())
-                                            {
-                                                @foreach (var plan in dayMeals)
-                                                {
-                                                    <div class="planned-meal-item">
-                                                        <span class="meal-title" title="@plan.Recipe?.Title">@plan.Recipe?.Title</span>
-                                                        <button class="btn btn-sm text-danger border-0 p-0"
-                                                            @onclick="() => RemoveMeal(plan.MealPlanId)">&times;</button>
-                                                    </div>
-                                                }
-                                            }
-                                            else
-                                            {
-                                                <div class="no-meal-text">No Meal</div>
-                                            }
-                                        </div>
-
-                                        <div class="meal-add-controls">
-                                            <select class="form-select form-select-sm" @onchange="@(e => selectedRecipeIds[$"{day.Date:yyyy-MM-dd}_{mealType}"] = int.TryParse(e.Value?.ToString(), out var id) ? id : 0)">
-                                                <option value="0">Select...</option>
-                                                @foreach (var r in availableRecipes)
-                                                {
-                                                    <option value="@r.RecipeId">@r.Title</option>
-                                                }
-                                            </select>
-                                            <button class="btn btn-sm btn-outline-primary" @onclick='() => AddMeal(day, mealType, selectedRecipeIds.GetValueOrDefault($"{day.Date:yyyy-MM-dd}_{mealType}", 0))'>Add</button>
-                                        </div>
-                                    </td>
+                                    <th>
+                                        <div>@day.ToString("dddd")</div>
+                                        <small class="text-muted">@day.ToShortDateString()</small>
+                                    </th>
                                 }
                             </tr>
-                        }
-                
-                    </tbody>
-                </table>
-            }
-                        
-            else if (weekLayout == "List"){
-                <div class="weekly-list-view">
-                    @for (int i = 0; i < 7; i++)
-                    {
-                        var day =currentWeekStart.AddDays(i);
-
-                        <div class="day-list-card">
-                            <div class="day-list-header">
-                                <h5>@day.ToString("dddd")</h5>
-                                <span>@day.ToShortDateString()</span>
-                            </div>
-
-                            <div class="day-list-body">
-                                @foreach (var mealType in mealTypes)
-                                {
-                                    var dayMeals = mealPlans
-                                        .Where(mp => mp.Date.Date == day.Date && mp.MealType == mealType)
-                                        .ToList();
-                                        
-                                    <div class="list-meal-row">
-                                        <div class="list-meal-label">@mealType</div>
-
-                                        <div class="list-meal-content list-drop-zone"
-                                            @ondragover:preventDefault
+                        </thead>
+                        <tbody>
+                            @foreach (var mealType in mealTypes)
+                            {
+                                <tr>
+                                    <td class="align-middle fw-bold">@mealType</td>
+                                    @for (int i = 0; i < 7; i++)
+                                    {
+                                        var day = currentWeekStart.AddDays(i);
+                                        var dayMeals = mealPlans.Where(mp => mp.Date.Date == day.Date && mp.MealType == mealType).ToList();
+                                        <td class="meal-cell" @ondragover:preventDefault
                                             @ondrop="() => OnDrop(day, mealType)">
-                                            @if (dayMeals.Any())
-                                            {
-                                                @foreach (var plan in dayMeals)
+                                            <div class="meal-slot">
+                                                @if (dayMeals.Any())
                                                 {
-                                                    <div class="planned-meal-item">
-                                                        <span class="meal-title" title="@plan.Recipe?.Title">@plan.Recipe?.Title</span>
-                                                        <button class="btn btn-sm text-danger border-0 p-0"@onclick="() => RemoveMeal(plan.MealPlanId)">&times;</button>
-                                                    </div>
+                                                    @foreach (var plan in dayMeals)
+                                                    {
+                                                        <div class="planned-meal-item">
+                                                            <span class="meal-title" title="@plan.Recipe?.Title">@plan.Recipe?.Title</span>
+                                                            <button class="btn btn-sm text-danger border-0 p-0"
+                                                                @onclick="() => RemoveMeal(plan.MealPlanId)">&times;</button>
+                                                        </div>
+                                                    }
                                                 }
-                                            }
-                                            else
-                                             {
-                                                <div class="no-meal-text">No Meal</div>
-                                             }
-                                        </div>
+                                                else
+                                                {
+                                                    <div class="no-meal-text">No Meal</div>
+                                                }
+                                            </div>
 
-                                        <div class="meal-add-controls list-add-controls">
-                                            <select class="form-select form-select-sm"
-                                                @onchange="@(e => selectedRecipeIds[$"{day.Date:yyyy-MM-dd}_{mealType}"] = int.TryParse(e.Value?.ToString(), out var id) ? id : 0)">
+                                            <div class="meal-add-controls">
+                                                <select class="form-select form-select-sm" @onchange="@(e => selectedRecipeIds[$"{day.Date:yyyy-MM-dd}_{mealType}"] = int.TryParse(e.Value?.ToString(), out var id) ? id : 0)">
                                                     <option value="0">Select...</option>
-
                                                     @foreach (var r in availableRecipes)
                                                     {
                                                         <option value="@r.RecipeId">@r.Title</option>
                                                     }
                                                 </select>
+                                                <button class="btn btn-sm btn-outline-primary" @onclick='() => AddMeal(day, mealType, selectedRecipeIds.GetValueOrDefault($"{day.Date:yyyy-MM-dd}_{mealType}", 0))'>Add</button>
+                                            </div>
+                                        </td>
+                                    }
+                                </tr>
+                            }
+                    
+                        </tbody>
+                    </table>
+                }
+                            
+                else if (weekLayout == "List"){
+                    <div class="weekly-list-view">
+                        @for (int i = 0; i < 7; i++)
+                        {
+                            var day =currentWeekStart.AddDays(i);
 
-                                                <button class="btn btn-sm btn-outline-primary"
-                                                    @onclick='() => AddMeal(day, mealType, selectedRecipeIds.GetValueOrDefault($"{day.Date:yyyy-MM-dd}_{mealType}", 0))'>Add</button>
-                                        </div>
-                                    </div>
-                                }
-                            </div>
-                        </div>
-                    }
-                </div>
-            }            
-        }
+                            <div class="day-list-card">
+                                <div class="day-list-header">
+                                    <h5>@day.ToString("dddd")</h5>
+                                    <span>@day.ToShortDateString()</span>
+                                </div>
 
-        else if (viewMode == "Month")
-        {
-            @* Monthly view*@
-            
-            var firstDayofMonth = new DateTime(currentMonthDate.Year, currentMonthDate.Month, 1); //get first day of month being viewed
-            var daysInMonth = DateTime.DaysInMonth(currentMonthDate.Year, currentMonthDate.Month); // # of days in the month
-            var startDayOffset = (int)firstDayofMonth.DayOfWeek; // figure out wht day of the week the month starts on
-            var totalCells = startDayOffset + daysInMonth;      //add blank cell blocks before day 1 of month if month starts after Sunday
-            var totalRows = (int)Math.Ceiling(totalCells / 7.0); // # of rows needed
-            var dayNumber = 1;
-            
+                                <div class="day-list-body">
+                                    @foreach (var mealType in mealTypes)
+                                    {
+                                        var dayMeals = mealPlans
+                                            .Where(mp => mp.Date.Date == day.Date && mp.MealType == mealType)
+                                            .ToList();
+                                            
+                                        <div class="list-meal-row">
+                                            <div class="list-meal-label">@mealType</div>
 
-            <table class="table table-bordered align-middle monthly-calendar">
-                <thead class="text-center">
-                    <tr>
-                        <th>Sunday</th>
-                        <th>Monday</th>
-                        <th>Tuesday</th>
-                        <th>Wednesday</th>
-                        <th>Thursday</th>
-                        <th>Friday</th>
-                        <th>Saturday</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @for (int row = 0; row < totalRows; row++)
-                    {
-                        <tr>
-                            @for (int col = 0; col < 7; col++)
-                            {
-                                // which cell are we on..figure it out here
-                                var cellIndex = row * 7 + col;
-                                // Empty cells before the first day of the month
-                                @if (cellIndex < startDayOffset || dayNumber > daysInMonth)
-                                {
-                                    <td class="monthly-empty-cell">
-                                        <div class="monthly-empty-box"></div>
-                                    </td>
-                                }
-                                else
-                                {
-                                    // full date
-                                    var currentDate = new DateTime(currentMonthDate.Year, currentMonthDate.Month, dayNumber);
-                                    // Get all meals planned for this date
-                                    var mealsForDay = mealPlans
-                                        .Where(mp => mp.Date.Date == currentDate.Date)
-                                        .OrderBy(mp => mp.MealType)
-                                        .ToList();
-
-                                    <td class="monthly-day-cell">
-                                        <div class="monthly-day-box">
-                                            <div class="monthly-day-number">@dayNumber</div>
-
-                                            <div class="monthly-meal-zones">
-                                                @foreach (var mealType in mealTypes){
-                                                    var mealsForType = mealsForDay
-                                                        .Where(mp => mp.MealType == mealType)
-                                                        .ToList();
-
-                                                    <div class="monthly-meal-zone"
-                                                        @ondragover:preventDefault
-                                                        @ondrop="() => OnDrop(currentDate, mealType)">
-                                                        <div class="monthly-zone-header">@mealType</div>
-
-                                                        @if (mealsForDay.Any())
-                                                        {
-                                                            @foreach (var meal in mealsForType)
-                                                            {
-                                                                <div class="monthly-meal-card">
-                                                                    <div class="monthly-meal-title" title="@meal.Recipe?.Title">@meal.Recipe?.Title</div>
-                                                                    <button class="btn btn-sm text-danger border-0 p-0" @onclick="() => RemoveMeal(meal.MealPlanId)">&times</button>
-                                                                </div>
-                                                            }
-                                                        }
-                                                        else
-                                                        {
-                                                            <div class="monthly-no-meals">No Meals</div>
-                                                        }
-
-                                                    </div>
+                                            <div class="list-meal-content list-drop-zone"
+                                                @ondragover:preventDefault
+                                                @ondrop="() => OnDrop(day, mealType)">
+                                                @if (dayMeals.Any())
+                                                {
+                                                    @foreach (var plan in dayMeals)
+                                                    {
+                                                        <div class="planned-meal-item">
+                                                            <span class="meal-title" title="@plan.Recipe?.Title">@plan.Recipe?.Title</span>
+                                                            <button class="btn btn-sm text-danger border-0 p-0"@onclick="() => RemoveMeal(plan.MealPlanId)">&times;</button>
+                                                        </div>
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <div class="no-meal-text">No Meal</div>
                                                 }
                                             </div>
 
-                                        </div>
-                                    </td>
+                                            <div class="meal-add-controls list-add-controls">
+                                                <select class="form-select form-select-sm"
+                                                    @onchange="@(e => selectedRecipeIds[$"{day.Date:yyyy-MM-dd}_{mealType}"] = int.TryParse(e.Value?.ToString(), out var id) ? id : 0)">
+                                                        <option value="0">Select...</option>
 
-                                    dayNumber++;
-                                }
-                            }
+                                                        @foreach (var r in availableRecipes)
+                                                        {
+                                                            <option value="@r.RecipeId">@r.Title</option>
+                                                        }
+                                                    </select>
+
+                                                    <button class="btn btn-sm btn-outline-primary"
+                                                        @onclick='() => AddMeal(day, mealType, selectedRecipeIds.GetValueOrDefault($"{day.Date:yyyy-MM-dd}_{mealType}", 0))'>Add</button>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }            
+            }
+
+            else if (viewMode == "Month")
+            {
+                @* Monthly view*@
+                
+                var firstDayofMonth = new DateTime(currentMonthDate.Year, currentMonthDate.Month, 1); //get first day of month being viewed
+                var daysInMonth = DateTime.DaysInMonth(currentMonthDate.Year, currentMonthDate.Month); // # of days in the month
+                var startDayOffset = (int)firstDayofMonth.DayOfWeek; // figure out wht day of the week the month starts on
+                var totalCells = startDayOffset + daysInMonth;      //add blank cell blocks before day 1 of month if month starts after Sunday
+                var totalRows = (int)Math.Ceiling(totalCells / 7.0); // # of rows needed
+                var dayNumber = 1;
+                
+
+                <table class="table table-bordered align-middle monthly-calendar">
+                    <thead class="text-center">
+                        <tr>
+                            <th>Sunday</th>
+                            <th>Monday</th>
+                            <th>Tuesday</th>
+                            <th>Wednesday</th>
+                            <th>Thursday</th>
+                            <th>Friday</th>
+                            <th>Saturday</th>
                         </tr>
-                    }
-                </tbody>
-            </table>
-        }
+                    </thead>
+                    <tbody>
+                        @for (int row = 0; row < totalRows; row++)
+                        {
+                            <tr>
+                                @for (int col = 0; col < 7; col++)
+                                {
+                                    // which cell are we on..figure it out here
+                                    var cellIndex = row * 7 + col;
+                                    // Empty cells before the first day of the month
+                                    @if (cellIndex < startDayOffset || dayNumber > daysInMonth)
+                                    {
+                                        <td class="monthly-empty-cell">
+                                            <div class="monthly-empty-box"></div>
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        // full date
+                                        var currentDate = new DateTime(currentMonthDate.Year, currentMonthDate.Month, dayNumber);
+                                        // Get all meals planned for this date
+                                        var mealsForDay = mealPlans
+                                            .Where(mp => mp.Date.Date == currentDate.Date)
+                                            .OrderBy(mp => mp.MealType)
+                                            .ToList();
+
+                                        <td class="monthly-day-cell">
+                                            <div class="monthly-day-box">
+                                                <div class="monthly-day-number">@dayNumber</div>
+
+                                                <div class="monthly-meal-zones">
+                                                    @foreach (var mealType in mealTypes){
+                                                        var mealsForType = mealsForDay
+                                                            .Where(mp => mp.MealType == mealType)
+                                                            .ToList();
+
+                                                        <div class="monthly-meal-zone"
+                                                            @ondragover:preventDefault
+                                                            @ondrop="() => OnDrop(currentDate, mealType)">
+                                                            <div class="monthly-zone-header">@mealType</div>
+
+                                                            @if (mealsForDay.Any())
+                                                            {
+                                                                @foreach (var meal in mealsForType)
+                                                                {
+                                                                    <div class="monthly-meal-card">
+                                                                        <div class="monthly-meal-title" title="@meal.Recipe?.Title">@meal.Recipe?.Title</div>
+                                                                        <button class="btn btn-sm text-danger border-0 p-0" @onclick="() => RemoveMeal(meal.MealPlanId)">&times</button>
+                                                                    </div>
+                                                                }
+                                                            }
+                                                            else
+                                                            {
+                                                                <div class="monthly-no-meals">No Meals</div>
+                                                            }
+
+                                                        </div>
+                                                    }
+                                                </div>
+
+                                            </div>
+                                        </td>
+
+                                        dayNumber++;
+                                    }
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
     </div>
 </div>
 
