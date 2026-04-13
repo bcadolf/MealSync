@@ -44,6 +44,7 @@ Follow these steps to run the application locally on your machine.
 
 3. **View the App:**
    Open your web browser and navigate to `http://localhost:5027` (or the URL specified in the console output).
+      [Production Site Link on Azure](https://mealsync-hvatc7b2h6hsh7df.eastus-01.azurewebsites.net)
 
 ## Team Members
 
